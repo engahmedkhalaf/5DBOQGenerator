@@ -26,6 +26,13 @@ namespace QicBoqMapper
         private string _statusText = "Ready";
         private int _progressValue = 0;
 
+        private bool _isCurrentSelectionSelected;
+        private bool _isActiveViewSelected = true;
+        private bool _isWholeModelSelected;
+
+        private string _licenseKey = string.Empty;
+        private string _licenseStatus = "License: Inactive";
+
         private int _loadedRecordsCount = 0;
         private int _matchedTypesCount = 0;
         private int _unmatchedTypesCount = 0;
@@ -55,6 +62,25 @@ namespace QicBoqMapper
             _separatorStyle = QicBoqApp.LastSeparatorStyle;
             _caseInsensitive = QicBoqApp.LastCaseInsensitive;
 
+            if (_selectionMode == "Current Selection")
+            {
+                _isCurrentSelectionSelected = true;
+                _isActiveViewSelected = false;
+                _isWholeModelSelected = false;
+            }
+            else if (_selectionMode == "Entire Model" || _selectionMode == "Whole Model")
+            {
+                _isCurrentSelectionSelected = false;
+                _isActiveViewSelected = false;
+                _isWholeModelSelected = true;
+            }
+            else
+            {
+                _isCurrentSelectionSelected = false;
+                _isActiveViewSelected = true;
+                _isWholeModelSelected = false;
+            }
+
             if (_excelRecords.Count > 0)
             {
                 _loadedRecordsCount = _excelRecords.Count;
@@ -69,10 +95,12 @@ namespace QicBoqMapper
 
             BrowseFileCommand = new RelayCommand(BrowseFile);
             LoadExcelCommand = new RelayCommand(LoadExcel, CanLoadExcel);
+            ImportExcelCommand = new RelayCommand(ImportExcel);
             ExportElementsCommand = new RelayCommand(ExportElements, CanExportElements);
             ValidateCommand = new RelayCommand(ValidateMapping, CanValidateOrGenerate);
             GenerateCommand = new RelayCommand(GenerateCodes, CanValidateOrGenerate);
             ExportReportCommand = new RelayCommand(ExportReport, CanExportReport);
+            ActivateLicenseCommand = new RelayCommand(ActivateLicense);
         }
 
         public void UpdateActiveDocument(Document doc, UIDocument? uiDoc)
@@ -112,6 +140,77 @@ namespace QicBoqMapper
                         StatusText = "No audit records to export. Please validate or generate first.";
                     break;
             }
+        }
+
+        // Selection Scope Radio Button Properties
+        public bool IsCurrentSelectionSelected
+        {
+            get => _isCurrentSelectionSelected;
+            set
+            {
+                if (_isCurrentSelectionSelected != value)
+                {
+                    _isCurrentSelectionSelected = value;
+                    if (value)
+                    {
+                        IsActiveViewSelected = false;
+                        IsWholeModelSelected = false;
+                        SelectionMode = "Current Selection";
+                    }
+                    OnPropertyChanged(nameof(IsCurrentSelectionSelected));
+                }
+            }
+        }
+
+        public bool IsActiveViewSelected
+        {
+            get => _isActiveViewSelected;
+            set
+            {
+                if (_isActiveViewSelected != value)
+                {
+                    _isActiveViewSelected = value;
+                    if (value)
+                    {
+                        IsCurrentSelectionSelected = false;
+                        IsWholeModelSelected = false;
+                        SelectionMode = "Active View";
+                    }
+                    OnPropertyChanged(nameof(IsActiveViewSelected));
+                }
+            }
+        }
+
+        public bool IsWholeModelSelected
+        {
+            get => _isWholeModelSelected;
+            set
+            {
+                if (_isWholeModelSelected != value)
+                {
+                    _isWholeModelSelected = value;
+                    if (value)
+                    {
+                        IsCurrentSelectionSelected = false;
+                        IsActiveViewSelected = false;
+                        SelectionMode = "Entire Model";
+                    }
+                    OnPropertyChanged(nameof(IsWholeModelSelected));
+                }
+            }
+        }
+
+        // License Properties
+        public string LicenseKey
+        {
+            get => _licenseKey;
+            set { _licenseKey = value; OnPropertyChanged(nameof(LicenseKey)); }
+        }
+
+        public string LicenseStatus
+        {
+            get => _licenseStatus;
+            set { _licenseStatus = value; OnPropertyChanged(nameof(LicenseStatus)); }
         }
 
         // Properties
@@ -201,10 +300,12 @@ namespace QicBoqMapper
         // Commands
         public ICommand BrowseFileCommand { get; }
         public ICommand LoadExcelCommand { get; }
+        public ICommand ImportExcelCommand { get; }
         public ICommand ExportElementsCommand { get; }
         public ICommand ValidateCommand { get; }
         public ICommand GenerateCommand { get; }
         public ICommand ExportReportCommand { get; }
+        public ICommand ActivateLicenseCommand { get; }
 
         private void BrowseFile(object parameter)
         {
@@ -217,6 +318,21 @@ namespace QicBoqMapper
             if (dlg.ShowDialog() == true)
             {
                 ExcelFilePath = dlg.FileName;
+            }
+        }
+
+        private void ImportExcel(object parameter)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Excel Workbooks (*.xlsx;*.xlsm)|*.xlsx;*.xlsm|All Files (*.*)|*.*",
+                Title = "Select Excel BOQ Mapping File"
+            };
+
+            if (dlg.ShowDialog() == true)
+            {
+                ExcelFilePath = dlg.FileName;
+                LoadExcel(null);
             }
         }
 
@@ -409,6 +525,26 @@ namespace QicBoqMapper
                 {
                     MessageBox.Show($"Failed to export report:\n{ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+        }
+
+        private void ActivateLicense(object parameter)
+        {
+            if (string.IsNullOrWhiteSpace(LicenseKey))
+            {
+                MessageBox.Show("Please enter a license key.", "License Activation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Simple mock activation validation. E.g. key length >= 5
+            if (LicenseKey.Trim().Length >= 5)
+            {
+                LicenseStatus = "License: Active";
+                MessageBox.Show("License activated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Invalid license key. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

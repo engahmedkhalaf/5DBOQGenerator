@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="QIC Tools – 5D BOQ Manager" 
-        Height="500" Width="420"
+        Height="510" Width="420"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
         Topmost="False"
@@ -86,8 +86,8 @@
     <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Header -->
-            <RowDefinition Height="Auto"/> <!-- License Card -->
             <RowDefinition Height="Auto"/> <!-- Scope Selection -->
+            <RowDefinition Height="Auto"/> <!-- Filters -->
             <RowDefinition Height="*"/>    <!-- Primary Actions -->
             <RowDefinition Height="Auto"/> <!-- Progress & Status -->
         </Grid.RowDefinitions>
@@ -100,54 +100,72 @@
             </StackPanel>
         </Grid>
 
-        <!-- License Card -->
+        <!-- Scope Selection Card -->
         <Border Grid.Row="1" Background="#1E293B" CornerRadius="8" Padding="12" Margin="0,0,0,12" BorderBrush="#334155" BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Selection Scope" FontWeight="SemiBold" FontSize="13" Foreground="White" Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton Content="Current Selection" 
+                                     IsChecked="{Binding IsCurrentSelectionSelected}" 
+                                     Style="{StaticResource ModernRadioButton}"/>
+                        <RadioButton Content="Active View" 
+                                     IsChecked="{Binding IsActiveViewSelected}" 
+                                     Style="{StaticResource ModernRadioButton}"/>
+                        <RadioButton Content="Whole Model" 
+                                     IsChecked="{Binding IsWholeModelSelected}" 
+                                     Style="{StaticResource ModernRadioButton}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                    <TextBlock Text="Separator" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,3"/>
+                    <ComboBox ItemsSource="{Binding SeparatorStyles}"
+                              SelectedItem="{Binding SeparatorStyle}"
+                              Width="95" Height="24"
+                              VerticalContentAlignment="Center"
+                              Background="#0F172A" Foreground="Black" BorderBrush="#334155"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Filters (Optional) Card -->
+        <Border Grid.Row="2" Background="#1E293B" CornerRadius="8" Padding="12" Margin="0,0,0,12" BorderBrush="#334155" BorderThickness="1">
             <StackPanel>
-                <Grid Margin="0,0,0,8">
-                    <TextBlock Text="Activate License" FontWeight="SemiBold" FontSize="13" Foreground="White" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding LicenseStatus}" FontSize="11" Foreground="#10B981" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                </Grid>
+                <TextBlock Text="Filters (Optional)" FontWeight="SemiBold" FontSize="13" Foreground="White" Margin="0,0,0,8"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}" 
-                             Grid.Column="0" 
-                             Height="32" 
-                             VerticalContentAlignment="Center" 
-                             Padding="8,0"
-                             Background="#0F172A"
-                             BorderBrush="#334155"
-                             BorderThickness="1"
-                             Foreground="White"
-                             CaretBrush="White"/>
-                    <Button Command="{Binding ActivateLicenseCommand}" 
-                            Style="{StaticResource PremiumButton}"
-                            Content="Activate" 
-                            Grid.Column="1" 
-                            Width="80" 
-                            Height="32" 
-                            Margin="8,0,0,0"/>
-                </Grid>
-            </StackPanel>
-        </Border>
+                    
+                    <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                        <TextBlock Text="Category" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,3"/>
+                        <TextBox Text="{Binding CategoryFilterText, UpdateSourceTrigger=PropertyChanged}" 
+                                 Height="28" VerticalContentAlignment="Center" Padding="5,0"
+                                 Background="#0F172A" BorderBrush="#334155" BorderThickness="1" Foreground="White" CaretBrush="White"/>
+                    </StackPanel>
 
-        <!-- Scope Selection Card -->
-        <Border Grid.Row="2" Background="#1E293B" CornerRadius="8" Padding="12" Margin="0,0,0,12" BorderBrush="#334155" BorderThickness="1">
-            <StackPanel>
-                <TextBlock Text="Selection Scope" FontWeight="SemiBold" FontSize="13" Foreground="White" Margin="0,0,0,8"/>
-                <StackPanel Orientation="Horizontal">
-                    <RadioButton Content="Current Selection" 
-                                 IsChecked="{Binding IsCurrentSelectionSelected}" 
-                                 Style="{StaticResource ModernRadioButton}"/>
-                    <RadioButton Content="Active View" 
-                                 IsChecked="{Binding IsActiveViewSelected}" 
-                                 Style="{StaticResource ModernRadioButton}"/>
-                    <RadioButton Content="Whole Model" 
-                                 IsChecked="{Binding IsWholeModelSelected}" 
-                                 Style="{StaticResource ModernRadioButton}"/>
-                </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="4,0,4,0">
+                        <TextBlock Text="Family" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,3"/>
+                        <TextBox Text="{Binding FamilyFilterText, UpdateSourceTrigger=PropertyChanged}" 
+                                 Height="28" VerticalContentAlignment="Center" Padding="5,0"
+                                 Background="#0F172A" BorderBrush="#334155" BorderThickness="1" Foreground="White" CaretBrush="White"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Margin="4,0,0,0">
+                        <TextBlock Text="Type" FontSize="10" Foreground="#94A3B8" Margin="0,0,0,3"/>
+                        <TextBox Text="{Binding TypeFilterText, UpdateSourceTrigger=PropertyChanged}" 
+                                 Height="28" VerticalContentAlignment="Center" Padding="5,0"
+                                 Background="#0F172A" BorderBrush="#334155" BorderThickness="1" Foreground="White" CaretBrush="White"/>
+                    </StackPanel>
+                </Grid>
             </StackPanel>
         </Border>
 
@@ -155,27 +173,48 @@
         <Border Grid.Row="3" Background="#1E293B" CornerRadius="8" Padding="12" Margin="0,0,0,12" BorderBrush="#334155" BorderThickness="1">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
                 <Button Command="{Binding ExportElementsCommand}" 
                         Style="{StaticResource SecondaryButton}" 
-                        Content="Export Elements to Excel" 
-                        Grid.Row="0" 
-                        Margin="0,0,0,8"/>
+                        Content="Export Elements" 
+                        Grid.Row="0" Grid.Column="0"
+                        Margin="0,0,4,8"
+                        Height="32"/>
                 
                 <Button Command="{Binding ImportExcelCommand}" 
                         Style="{StaticResource SecondaryButton}" 
-                        Content="Import Excel Parameters" 
-                        Grid.Row="1" 
-                        Margin="0,0,0,8"/>
+                        Content="Import Excel" 
+                        Grid.Row="0" Grid.Column="1"
+                        Margin="4,0,0,8"
+                        Height="32"/>
+
+                <Button Command="{Binding ValidateCommand}" 
+                        Style="{StaticResource SecondaryButton}" 
+                        Content="Validate Mapping" 
+                        Grid.Row="1" Grid.Column="0"
+                        Margin="0,0,4,8"
+                        Height="32"/>
+                
+                <Button Command="{Binding ExportReportCommand}" 
+                        Style="{StaticResource SecondaryButton}" 
+                        Content="Audit Report" 
+                        Grid.Row="1" Grid.Column="1"
+                        Margin="4,0,0,8"
+                        Height="32"/>
                 
                 <Button Command="{Binding GenerateCommand}" 
                         Style="{StaticResource PremiumButton}" 
                         Content="Generate 5D BOQ Codes" 
-                        Grid.Row="2"/>
+                        Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                        Height="35"/>
             </Grid>
         </Border>
 

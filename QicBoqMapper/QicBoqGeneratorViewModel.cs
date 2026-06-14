@@ -33,6 +33,10 @@ namespace QicBoqMapper
         private string _licenseKey = string.Empty;
         private string _licenseStatus = "License: Inactive";
 
+        private string _categoryFilterText = string.Empty;
+        private string _familyFilterText = string.Empty;
+        private string _typeFilterText = string.Empty;
+
         private int _loadedRecordsCount = 0;
         private int _matchedTypesCount = 0;
         private int _unmatchedTypesCount = 0;
@@ -52,7 +56,7 @@ namespace QicBoqMapper
 
             SelectionModes = new ObservableCollection<string> { "Current Selection", "Active View", "Entire Model" };
             MatchingMethods = new ObservableCollection<string> { "Category + Family + Type", "Element ID" };
-            SeparatorStyles = new ObservableCollection<string> { "Dash", "Dot", "Underscore" };
+            SeparatorStyles = new ObservableCollection<string> { "- (Dash)", ". (Dot)", "_ (Underscore)", ", (Comma)" };
 
             // Load persisted settings and Excel data
             _excelFilePath = QicBoqApp.LastExcelFilePath;
@@ -60,6 +64,10 @@ namespace QicBoqMapper
             _selectionMode = QicBoqApp.LastSelectionMode;
             _matchingMethod = QicBoqApp.LastMatchingMethod;
             _separatorStyle = QicBoqApp.LastSeparatorStyle;
+            if (_separatorStyle == "Dash" || string.IsNullOrEmpty(_separatorStyle)) _separatorStyle = "- (Dash)";
+            else if (_separatorStyle == "Dot") _separatorStyle = ". (Dot)";
+            else if (_separatorStyle == "Underscore") _separatorStyle = "_ (Underscore)";
+            else if (_separatorStyle == "Comma") _separatorStyle = ", (Comma)";
             _caseInsensitive = QicBoqApp.LastCaseInsensitive;
 
             if (_selectionMode == "Current Selection")
@@ -206,11 +214,30 @@ namespace QicBoqMapper
             get => _licenseKey;
             set { _licenseKey = value; OnPropertyChanged(nameof(LicenseKey)); }
         }
-
+        
         public string LicenseStatus
         {
             get => _licenseStatus;
             set { _licenseStatus = value; OnPropertyChanged(nameof(LicenseStatus)); }
+        }
+
+        // Selection Filters
+        public string CategoryFilterText
+        {
+            get => _categoryFilterText;
+            set { _categoryFilterText = value; OnPropertyChanged(nameof(CategoryFilterText)); }
+        }
+
+        public string FamilyFilterText
+        {
+            get => _familyFilterText;
+            set { _familyFilterText = value; OnPropertyChanged(nameof(FamilyFilterText)); }
+        }
+
+        public string TypeFilterText
+        {
+            get => _typeFilterText;
+            set { _typeFilterText = value; OnPropertyChanged(nameof(TypeFilterText)); }
         }
 
         // Properties
@@ -387,7 +414,7 @@ namespace QicBoqMapper
                         ProgressValue = 20;
                         StatusText = "Collecting Revit elements...";
                         var selectedCats = CategoryItems.Where(c => c.IsSelected).Select(c => c.Name).ToList();
-                        var elements = QicBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats);
+                        var elements = QicBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats, CategoryFilterText, FamilyFilterText, TypeFilterText);
 
                         ProgressValue = 50;
                         StatusText = "Exporting to Excel...";
@@ -422,7 +449,7 @@ namespace QicBoqMapper
                     ProgressValue = 20;
                     StatusText = "Collecting Revit elements...";
                     var selectedCats = CategoryItems.Where(c => c.IsSelected).Select(c => c.Name).ToList();
-                    var elements = QicBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats);
+                    var elements = QicBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats, CategoryFilterText, FamilyFilterText, TypeFilterText);
 
                     ProgressValue = 50;
                     StatusText = $"Mapping {elements.Count} elements...";
@@ -461,7 +488,7 @@ namespace QicBoqMapper
 
                     ProgressValue = 30;
                     StatusText = "Gathering and mapping elements...";
-                    var elements = QicBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats);
+                    var elements = QicBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats, CategoryFilterText, FamilyFilterText, TypeFilterText);
                     int matched, unmatched;
                     _auditRecords = QicBoqManager.PerformMapping(_doc, elements, _excelRecords, SeparatorStyle, MatchingMethod, CaseInsensitive, out matched, out unmatched);
 

@@ -9,7 +9,7 @@ namespace QicBoqMapper
 {
     public static class QicBoqManager
     {
-        public static List<Element> GetElements(Document doc, UIDocument uiDoc, string selectionMode, List<string> selectedCategoryNames)
+        public static List<Element> GetElements(Document doc, UIDocument uiDoc, string selectionMode, List<string> selectedCategoryNames, string categoryFilterText = "", string familyFilterText = "", string typeFilterText = "")
         {
             var elements = new List<Element>();
             if (selectedCategoryNames == null || selectedCategoryNames.Count == 0)
@@ -30,6 +30,7 @@ namespace QicBoqMapper
                 return elements;
 
             var categoryFilter = new LogicalOrFilter(categoryFilters);
+            var collected = new List<Element>();
 
             if (selectionMode == "Current Selection" && uiDoc != null)
             {
@@ -37,18 +38,48 @@ namespace QicBoqMapper
                 if (selectionIds.Count > 0)
                 {
                     var collector = new FilteredElementCollector(doc, selectionIds);
-                    elements.AddRange(collector.WherePasses(categoryFilter).WhereElementIsNotElementType().ToElements());
+                    collected.AddRange(collector.WherePasses(categoryFilter).WhereElementIsNotElementType().ToElements());
                 }
             }
             else if (selectionMode == "Active View" && doc.ActiveView != null)
             {
                 var collector = new FilteredElementCollector(doc, doc.ActiveView.Id);
-                elements.AddRange(collector.WherePasses(categoryFilter).WhereElementIsNotElementType().ToElements());
+                collected.AddRange(collector.WherePasses(categoryFilter).WhereElementIsNotElementType().ToElements());
             }
             else // Entire Model
             {
                 var collector = new FilteredElementCollector(doc);
-                elements.AddRange(collector.WherePasses(categoryFilter).WhereElementIsNotElementType().ToElements());
+                collected.AddRange(collector.WherePasses(categoryFilter).WhereElementIsNotElementType().ToElements());
+            }
+
+            // Filter elements by category, family, and type name (case-insensitive substring match)
+            foreach (var elem in collected)
+            {
+                if (!string.IsNullOrWhiteSpace(categoryFilterText))
+                {
+                    string catName = elem.Category?.Name ?? "";
+                    if (catName.IndexOf(categoryFilterText, StringComparison.OrdinalIgnoreCase) < 0)
+                        continue;
+                }
+
+                var typeId = elem.GetTypeId();
+                ElementType? typeElem = typeId != ElementId.InvalidElementId ? doc.GetElement(typeId) as ElementType : null;
+                string familyName = typeElem?.FamilyName ?? "";
+                string typeName = typeElem?.Name ?? elem.Name;
+
+                if (!string.IsNullOrWhiteSpace(familyFilterText))
+                {
+                    if (familyName.IndexOf(familyFilterText, StringComparison.OrdinalIgnoreCase) < 0)
+                        continue;
+                }
+
+                if (!string.IsNullOrWhiteSpace(typeFilterText))
+                {
+                    if (typeName.IndexOf(typeFilterText, StringComparison.OrdinalIgnoreCase) < 0)
+                        continue;
+                }
+
+                elements.Add(elem);
             }
 
             return elements;
@@ -245,8 +276,11 @@ namespace QicBoqMapper
 
                     // Join fields using separator
                     string sepChar = "-";
-                    if (separator == "Dot") sepChar = ".";
-                    else if (separator == "Underscore") sepChar = "_";
+                    if (separator == "Dot" || separator == "." || separator.Contains(".")) sepChar = ".";
+                    else if (separator == "Underscore" || separator == "_" || separator.Contains("_")) sepChar = "_";
+                    else if (separator == "Comma" || separator == "," || separator.Contains(",")) sepChar = ",";
+                    else if (separator == "Dash" || separator == "-" || separator.Contains("-")) sepChar = "-";
+                    else if (!string.IsNullOrEmpty(separator)) sepChar = separator;
 
                     audit.GeneratedBoqCode = string.Join(sepChar, new[] {
                         matchedBoq.PackageNo, matchedBoq.BillNo, matchedBoq.SystemCode, matchedBoq.PageNo, matchedBoq.ItemNo

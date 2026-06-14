@@ -37,13 +37,7 @@ namespace QicBoqMapper
                 var panel = application.CreateRibbonPanel(TabName, PanelName);
                 string asmPath = Assembly.GetExecutingAssembly().Location;
 
-                panel.AddItem(CreateButton(asmPath, "QicExport", "Export\nElements", "QicBoqMapper.ExportElementsCommand", "Export Revit elements to Excel for mapping."));
-                panel.AddItem(CreateButton(asmPath, "QicImport", "Import BOQ\nMapping", "QicBoqMapper.ImportMappingCommand", "Import completed BOQ mapping file."));
-                panel.AddItem(CreateButton(asmPath, "QicGenerate", "Generate\n5D Codes", "QicBoqMapper.Generate5DCodesCommand", "Generate BOQ codes and update parameters."));
-                panel.AddSeparator();
-                panel.AddItem(CreateButton(asmPath, "QicValidate", "Validate\nMapping", "QicBoqMapper.ValidateMappingCommand", "Check mapping quality."));
-                panel.AddItem(CreateButton(asmPath, "QicAudit", "Audit\nReport", "QicBoqMapper.AuditReportCommand", "Generate update report."));
-                panel.AddItem(CreateButton(asmPath, "QicSettings", "Settings", "QicBoqMapper.SettingsCommand", "Configure code format and mapping options."));
+                panel.AddItem(CreateButton(asmPath, "QicBoqManager", "QIC 5D BOQ\nManager", "QicBoqMapper.QicBoqManagerCommand", "Open the QIC 5D BOQ Manager workflow window."));
 
                 return Result.Succeeded;
             }

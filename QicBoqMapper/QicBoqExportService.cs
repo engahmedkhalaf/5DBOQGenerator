@@ -18,7 +18,7 @@ namespace QicBoqMapper
                 string[] headers = {
                     "Element ID", "Unique ID", "Category", "Family Name", "Type Name",
                     "Level", "Workset", "Mark", "Package No", "Bill No",
-                    "System Code", "Page No", "Item No", "QIC_5D_BOQ_CODE"
+                    "System Code", "Page No", "Item No", "QIC_5D_BOQ CODE"
                 };
 
                 for (int i = 0; i < headers.Length; i++)
@@ -58,7 +58,7 @@ namespace QicBoqMapper
                     ws.Cells[row, 11].Value = elem.LookupParameter("SYSTEM_CODE")?.AsString() ?? "";
                     ws.Cells[row, 12].Value = elem.LookupParameter("PAGE_NO")?.AsString() ?? "";
                     ws.Cells[row, 13].Value = elem.LookupParameter("ITEM_NO")?.AsString() ?? "";
-                    ws.Cells[row, 14].Value = elem.LookupParameter("QIC_5D_BOQ_CODE")?.AsString() ?? "";
+                    ws.Cells[row, 14].Value = elem.LookupParameter("QIC_5D_BOQ CODE")?.AsString() ?? "";
 
                     row++;
                 }

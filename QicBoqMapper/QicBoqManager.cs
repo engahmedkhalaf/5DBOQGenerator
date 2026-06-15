@@ -108,7 +108,7 @@ namespace QicBoqMapper
 
             // Define all required and optional parameters
             string[] paramNames = {
-                "PACKAGE_NO", "BILL_NO", "SYSTEM_CODE", "PAGE_NO", "ITEM_NO", "QIC_5D_BOQ_CODE",
+                "PACKAGE_NO", "BILL_NO", "SYSTEM_CODE", "PAGE_NO", "ITEM_NO", "QIC_5D_BOQ CODE",
                 "DISTRICT_CODE", "ASSET_GROUP", "ASSET_TYPE", "LOCATION_CODE", "DESCRIPTION",
                 "ABS_L1", "ABS_L2", "ABS_L3"
             };
@@ -347,7 +347,7 @@ namespace QicBoqMapper
                     SetParameterValue(element, "SYSTEM_CODE", audit.SystemCode);
                     SetParameterValue(element, "PAGE_NO", audit.PageNo);
                     SetParameterValue(element, "ITEM_NO", audit.ItemNo);
-                    SetParameterValue(element, "QIC_5D_BOQ_CODE", audit.GeneratedBoqCode);
+                    SetParameterValue(element, "QIC_5D_BOQ CODE", audit.GeneratedBoqCode);
 
                     // Lookup matching BoqRecord for optional parameters
                     BoqRecord matchedBoq = null;

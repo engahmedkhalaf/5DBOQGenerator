@@ -98,7 +98,14 @@ namespace QicBoqMapper
             CategoryItems = new ObservableCollection<CategorySelectionItem>();
             foreach (var name in CategoryMappingService.GetCategoryNames())
             {
-                CategoryItems.Add(new CategorySelectionItem { Name = name, IsSelected = true });
+                var item = new CategorySelectionItem { Name = name, IsSelected = true };
+                item.PropertyChanged += (s, e) => {
+                    if (e.PropertyName == nameof(CategorySelectionItem.IsSelected))
+                    {
+                        OnPropertyChanged(nameof(SelectedCategoriesSummary));
+                    }
+                };
+                CategoryItems.Add(item);
             }
 
             BrowseFileCommand = new RelayCommand(BrowseFile);
@@ -238,6 +245,27 @@ namespace QicBoqMapper
         {
             get => _typeFilterText;
             set { _typeFilterText = value; OnPropertyChanged(nameof(TypeFilterText)); }
+        }
+
+        public string SelectedCategoriesSummary
+        {
+            get
+            {
+                var selected = CategoryItems.Where(c => c.IsSelected).Select(c => c.Name).ToList();
+                if (selected.Count == 0)
+                {
+                    return "None Selected";
+                }
+                if (selected.Count == CategoryItems.Count)
+                {
+                    return "All Categories";
+                }
+                if (selected.Count == 1)
+                {
+                    return selected[0];
+                }
+                return $"{selected.Count} Categories Selected";
+            }
         }
 
         // Properties

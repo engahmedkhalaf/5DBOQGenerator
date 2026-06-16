@@ -39,13 +39,15 @@ namespace QicBoqMapper
                 StatusLabel.Foreground = System.Windows.Media.Brushes.Orange;
                 StatusLabel.Visibility = Visibility.Visible;
 
-                bool isValid = await Task.Run(() => LicenseManager.ValidateLicenseWithSupabaseAsync(email, code));
+                var validationResult = await Task.Run(() => LicenseManager.ValidateLicenseWithSupabaseAsync(email, code));
+                bool isValid = validationResult.Item1;
+                string expiresAtStr = validationResult.Item2;
 
                 this.IsEnabled = true;
 
                 if (isValid)
                 {
-                    LicenseManager.SaveLicense(email, code, true);
+                    LicenseManager.SaveLicense(email, code, true, expiresAtStr);
                     StatusLabel.Text = "Status: Activated successfully.";
                     StatusLabel.Foreground = System.Windows.Media.Brushes.LightGreen;
                     StatusLabel.Visibility = Visibility.Visible;
@@ -56,10 +58,10 @@ namespace QicBoqMapper
                 else
                 {
                     LicenseManager.SaveLicense(email, code, false);
-                    StatusLabel.Text = "Error: License not found or inactive.";
+                    StatusLabel.Text = "Error: License not found, inactive, or expired.";
                     StatusLabel.Foreground = System.Windows.Media.Brushes.LightPink;
                     StatusLabel.Visibility = Visibility.Visible;
-                    MessageBox.Show("Invalid email or activation code. License verification failed.", "License Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Invalid, inactive, or expired license. Verification failed.", "License Manager", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)

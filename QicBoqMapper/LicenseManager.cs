@@ -12,6 +12,7 @@ namespace QicBoqMapper
         private const string EmailValueName = "Email";
         private const string CodeValueName = "ActivationCode";
         private const string LastVerifiedValueName = "LastVerified";
+        private const string ExpiresAtValueName = "ExpiresAt";
 
         // Supabase configuration placeholders
         private const string SupabaseUrl = "https://auvtapbsdewwmzejchgq.supabase.co";
@@ -24,8 +25,25 @@ namespace QicBoqMapper
                 using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryPath))
                 {
                     if (key == null) return false;
+                    
                     object lastVerifiedVal = key.GetValue(LastVerifiedValueName);
-                    return lastVerifiedVal != null && !string.IsNullOrWhiteSpace(lastVerifiedVal.ToString());
+                    if (lastVerifiedVal == null || string.IsNullOrWhiteSpace(lastVerifiedVal.ToString()))
+                        return false;
+
+                    // Check local expiration date
+                    object expiresAtVal = key.GetValue(ExpiresAtValueName);
+                    if (expiresAtVal != null && !string.IsNullOrWhiteSpace(expiresAtVal.ToString()))
+                    {
+                        if (DateTimeOffset.TryParse(expiresAtVal.ToString(), out DateTimeOffset expiresAt))
+                        {
+                            if (DateTimeOffset.UtcNow > expiresAt)
+                            {
+                                return false; // Expired locally
+                            }
+                        }
+                    }
+
+                    return true;
                 }
             }
             catch
@@ -66,7 +84,7 @@ namespace QicBoqMapper
             }
         }
 
-        public static void SaveLicense(string email, string code, bool isActivated)
+        public static void SaveLicense(string email, string code, bool isActivated, string expiresAtStr = null)
         {
             try
             {
@@ -81,10 +99,20 @@ namespace QicBoqMapper
                         {
                             string utcNowStr = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFZ");
                             key.SetValue(LastVerifiedValueName, utcNowStr, RegistryValueKind.String);
+                            
+                            if (!string.IsNullOrWhiteSpace(expiresAtStr))
+                            {
+                                key.SetValue(ExpiresAtValueName, expiresAtStr, RegistryValueKind.String);
+                            }
+                            else
+                            {
+                                try { key.DeleteValue(ExpiresAtValueName, false); } catch { }
+                            }
                         }
                         else
                         {
                             try { key.DeleteValue(LastVerifiedValueName, false); } catch { }
+                            try { key.DeleteValue(ExpiresAtValueName, false); } catch { }
                         }
                     }
                 }
@@ -106,10 +134,10 @@ namespace QicBoqMapper
             return validEmail && validCode;
         }
 
-        public static async Task<bool> ValidateLicenseWithSupabaseAsync(string email, string code)
+        public static async Task<Tuple<bool, string>> ValidateLicenseWithSupabaseAsync(string email, string code)
         {
             if (!ValidateInput(email, code))
-                return false;
+                return Tuple.Create(false, (string)null);
 
             try
             {
@@ -139,35 +167,36 @@ namespace QicBoqMapper
                     
                     if (!trimmedResponse.StartsWith("[") || !trimmedResponse.EndsWith("]"))
                     {
-                        return false;
+                        return Tuple.Create(false, (string)null);
                     }
 
                     if (trimmedResponse == "[]")
                     {
-                        return false;
+                        return Tuple.Create(false, (string)null);
                     }
 
                     if (trimmedResponse.Contains("\"status\"") && !trimmedResponse.Contains("\"status\":\"active\"") && !trimmedResponse.Contains("\"status\": \"active\""))
                     {
-                        return false;
+                        return Tuple.Create(false, (string)null);
                     }
 
                     // Check for license expiration date if present
                     string expiresPattern = "\"expires_at\"\\s*:\\s*\"([^\"]+)\"";
                     var match = Regex.Match(trimmedResponse, expiresPattern);
+                    string expiresAtStr = null;
                     if (match.Success)
                     {
-                        string expiresStr = match.Groups[1].Value;
-                        if (DateTime.TryParse(expiresStr, out DateTime expiresAt))
+                        expiresAtStr = match.Groups[1].Value;
+                        if (DateTimeOffset.TryParse(expiresAtStr, out DateTimeOffset expiresAt))
                         {
-                            if (DateTime.UtcNow > expiresAt)
+                            if (DateTimeOffset.UtcNow > expiresAt)
                             {
-                                return false; // License has expired
+                                return Tuple.Create(false, (string)null); // License has expired
                             }
                         }
                     }
 
-                    return true;
+                    return Tuple.Create(true, expiresAtStr);
                 }
             }
             catch (Exception ex)

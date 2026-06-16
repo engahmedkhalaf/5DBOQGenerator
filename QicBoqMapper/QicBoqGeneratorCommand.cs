@@ -221,6 +221,24 @@ namespace QicBoqMapper
     {
         public static bool EnsureActivated(UIApplication uiApp)
         {
+            if (!LicenseManager.IsActivated())
+            {
+                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\QicTools\QicBoqMapper"))
+                {
+                    if (key != null)
+                    {
+                        object expiresAtVal = key.GetValue("ExpiresAt");
+                        if (expiresAtVal != null && DateTimeOffset.TryParse(expiresAtVal.ToString(), out DateTimeOffset expiresAt))
+                        {
+                            if (DateTimeOffset.UtcNow > expiresAt)
+                            {
+                                TaskDialog.Show("License Expired", "License Expired. Please contact the administrator to renew your subscription.");
+                            }
+                        }
+                    }
+                }
+            }
+
             if (LicenseManager.IsActivated())
                 return true;
 

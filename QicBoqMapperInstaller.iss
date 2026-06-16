@@ -1,41 +1,48 @@
-; Inno Setup Script for QIC 5D BOQ Manager Revit 2023 Add-in
-; Use Inno Setup Compiler to compile this script into a standalone installer executable.
+; ==========================================================
+; QIC 5D BOQ Manager - Installer
+; Inno Setup Script
+; ==========================================================
+
+#define MyAppName "QIC 5D BOQ Manager"
+#define MyAppVersion "1.0.0"
+#define MyAppPublisher "QIC"
+#define MyAppURL "https://qic.com"
+#define MyAppExeName "QicBoqMapper.dll"
 
 [Setup]
-AppName=QIC 5D BOQ Manager
-AppVersion=1.0.0
-AppPublisher=QicTools
-AppPublisherURL=https://github.com/engahmedkhalaf/5DBOQGenerator
-DefaultDirName={commonappdata}\Autodesk\Revit\Addins\2023\QicBoqMapper
-DefaultGroupName=QIC 5D BOQ Manager
+AppId={{A1F3E8B4-1234-5678-ABCD-987654321000}
+AppName={#MyAppName}
+AppVersion={#MyAppVersion}
+AppPublisher={#MyAppPublisher}
+AppPublisherURL={#MyAppURL}
+DefaultDirName={commonappdata}\Autodesk\Revit\Addins\2023
 DisableProgramGroupPage=yes
-OutputBaseFilename=QicBoqMapperSetup
+OutputDir=Output
+OutputBaseFilename=QIC_5D_BOQ_Manager_Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-SetupIconFile=QicBoqMapper\Resources\QicBoqManager_32.png
-PrivilegesRequired=admin
 
-[Dirs]
-Name: "{commonappdata}\Autodesk\Revit\Addins\2023"
-Name: "{commonappdata}\Autodesk\Revit\Addins\2023\QicBoqMapper"
-Name: "{commonappdata}\Autodesk\Revit\Addins\2023\QicBoqMapper\Resources"
+[Languages]
+Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-; Revit Add-in Manifest File (installed to the parent Addins\2023 folder)
-Source: "QicBoqMapper\QicBoqMapper.addin"; DestDir: "{commonappdata}\Autodesk\Revit\Addins\2023"; Flags: ignoreversion
-
-; Add-in Assembly and Dependencies
-Source: "QicBoqMapper\bin\Debug\net48\QicBoqMapper.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "QicBoqMapper\bin\Debug\net48\EPPlus.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "QicBoqMapper\bin\Debug\net48\Microsoft.IO.RecyclableMemoryStream.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "QicBoqMapper\bin\Debug\net48\System.ComponentModel.Annotations.dll"; DestDir: "{app}"; Flags: ignoreversion
-
-; Resources and Icons
-Source: "QicBoqMapper\Resources\*"; DestDir: "{app}\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "Publish\QicBoqMapper.addin"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Publish\QicBoqMapper\QicBoqMapper.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
+Source: "Publish\QicBoqMapper\EPPlus.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
+Source: "Publish\QicBoqMapper\Microsoft.IO.RecyclableMemoryStream.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
+Source: "Publish\QicBoqMapper\System.ComponentModel.Annotations.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
+Source: "Publish\QicBoqMapper\Resources\*"; DestDir: "{app}\QicBoqMapper\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\Uninstall QIC 5D BOQ Manager"; Filename: "{uninstallexe}"
+; Revit Add-ins typically do not require Start Menu shortcuts
 
-[Messages]
-WelcomeLabel2=This wizard will install QIC 5D BOQ Manager Revit 2023 Add-in on your computer.%n%nPlease close Autodesk Revit before continuing.
+[Run]
+; Optional post-install actions
+
+[Code]
+
+function InitializeSetup(): Boolean;
+begin
+  Result := True;
+end;

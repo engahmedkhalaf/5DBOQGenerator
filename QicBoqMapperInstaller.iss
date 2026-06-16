@@ -8,7 +8,7 @@
 #define MyAppPublisher "QIC"
 #define MyAppURL "https://qic.com"
 #define MyAppExeName "QicBoqMapper.dll"
-#define PublishDir "D:\API Khalaf\Revit API\Publish\5D api"
+#define PublishDir "D:\API Khalaf\Revit API\Publish\NWC EXPORTER Scope"
 
 [Setup]
 AppId={{A1F3E8B4-1234-5678-ABCD-987654321000}

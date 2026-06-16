@@ -50,16 +50,16 @@
     <Message Importance="High" Text="Deploying add-in files to: $(RevitAddinSubFolder)" />
     <MakeDir Directories="$(RevitAddinsDir)" Condition="!Exists('$(RevitAddinsDir)')" />
     <MakeDir Directories="$(RevitAddinSubFolder)" Condition="!Exists('$(RevitAddinSubFolder)')" />
-    <Copy SourceFiles="$(ProjectDir)QicBoqMapper.addin" DestinationFolder="$(RevitAddinsDir)" />
+    <Copy SourceFiles="$(ProjectDir)QicBoqMapper.addin" DestinationFolder="$(RevitAddinsDir)" ContinueOnError="WarnAndContinue" />
     <ItemGroup>
       <AddinDlls Include="$(OutputPath)*.dll" />
       <AddinPdbs Include="$(OutputPath)*.pdb" />
     </ItemGroup>
-    <Copy SourceFiles="@(AddinDlls)" DestinationFolder="$(RevitAddinSubFolder)" />
-    <Copy SourceFiles="@(AddinPdbs)" DestinationFolder="$(RevitAddinSubFolder)" />
+    <Copy SourceFiles="@(AddinDlls)" DestinationFolder="$(RevitAddinSubFolder)" ContinueOnError="WarnAndContinue" />
+    <Copy SourceFiles="@(AddinPdbs)" DestinationFolder="$(RevitAddinSubFolder)" ContinueOnError="WarnAndContinue" />
     <ItemGroup>
       <ResourceFiles Include="$(ProjectDir)Resources\*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(ResourceFiles)" DestinationFolder="$(RevitAddinSubFolder)\Resources" />
+    <Copy SourceFiles="@(ResourceFiles)" DestinationFolder="$(RevitAddinSubFolder)\Resources" ContinueOnError="WarnAndContinue" />
   </Target>
 </Project>

@@ -38,6 +38,8 @@ namespace QicBoqMapper
                 string asmPath = Assembly.GetExecutingAssembly().Location;
 
                 panel.AddItem(CreateButton(asmPath, "QicBoqManager", "QIC 5D BOQ\nManager", "QicBoqMapper.QicBoqManagerCommand", "Open the QIC 5D BOQ Manager workflow window."));
+                panel.AddItem(CreateButton(asmPath, "WphLicense", "License", "QicBoqMapper.WphLoginCommand", "Activate your product license."));
+                panel.AddItem(CreateButton(asmPath, "WphAbout", "About", "QicBoqMapper.AboutCommand", "View add-in version and support details."));
 
                 return Result.Succeeded;
             }

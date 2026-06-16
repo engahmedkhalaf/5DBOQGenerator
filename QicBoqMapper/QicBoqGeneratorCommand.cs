@@ -13,6 +13,11 @@ namespace QicBoqMapper
         {
             try
             {
+                if (!CommandHelper.EnsureActivated(commandData.Application))
+                {
+                    return Result.Cancelled;
+                }
+
                 QicBoqApp.ShowWindow(commandData.Application, null);
                 return Result.Succeeded;
             }
@@ -32,6 +37,11 @@ namespace QicBoqMapper
         {
             try
             {
+                if (!CommandHelper.EnsureActivated(commandData.Application))
+                {
+                    return Result.Cancelled;
+                }
+
                 QicBoqApp.ShowWindow(commandData.Application, "export");
                 return Result.Succeeded;
             }
@@ -51,6 +61,11 @@ namespace QicBoqMapper
         {
             try
             {
+                if (!CommandHelper.EnsureActivated(commandData.Application))
+                {
+                    return Result.Cancelled;
+                }
+
                 QicBoqApp.ShowWindow(commandData.Application, "import");
                 return Result.Succeeded;
             }
@@ -70,6 +85,11 @@ namespace QicBoqMapper
         {
             try
             {
+                if (!CommandHelper.EnsureActivated(commandData.Application))
+                {
+                    return Result.Cancelled;
+                }
+
                 QicBoqApp.ShowWindow(commandData.Application, "generate");
                 return Result.Succeeded;
             }
@@ -89,6 +109,11 @@ namespace QicBoqMapper
         {
             try
             {
+                if (!CommandHelper.EnsureActivated(commandData.Application))
+                {
+                    return Result.Cancelled;
+                }
+
                 QicBoqApp.ShowWindow(commandData.Application, "validate");
                 return Result.Succeeded;
             }
@@ -108,6 +133,11 @@ namespace QicBoqMapper
         {
             try
             {
+                if (!CommandHelper.EnsureActivated(commandData.Application))
+                {
+                    return Result.Cancelled;
+                }
+
                 QicBoqApp.ShowWindow(commandData.Application, "audit");
                 return Result.Succeeded;
             }
@@ -127,6 +157,11 @@ namespace QicBoqMapper
         {
             try
             {
+                if (!CommandHelper.EnsureActivated(commandData.Application))
+                {
+                    return Result.Cancelled;
+                }
+
                 QicBoqApp.ShowWindow(commandData.Application, "settings");
                 return Result.Succeeded;
             }
@@ -135,6 +170,66 @@ namespace QicBoqMapper
                 message = ex.Message;
                 return Result.Failed;
             }
+        }
+    }
+
+    [Transaction(TransactionMode.Manual)]
+    [Regeneration(RegenerationOption.Manual)]
+    public class WphLoginCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            try
+            {
+                var win = new LicenseWindow();
+                var helper = new System.Windows.Interop.WindowInteropHelper(win);
+                helper.Owner = commandData.Application.MainWindowHandle;
+                win.ShowDialog();
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                return Result.Failed;
+            }
+        }
+    }
+
+    [Transaction(TransactionMode.Manual)]
+    [Regeneration(RegenerationOption.Manual)]
+    public class AboutCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            try
+            {
+                var win = new AboutWindow();
+                var helper = new System.Windows.Interop.WindowInteropHelper(win);
+                helper.Owner = commandData.Application.MainWindowHandle;
+                win.ShowDialog();
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                return Result.Failed;
+            }
+        }
+    }
+
+    public static class CommandHelper
+    {
+        public static bool EnsureActivated(UIApplication uiApp)
+        {
+            if (LicenseManager.IsActivated())
+                return true;
+
+            var win = new LicenseWindow();
+            var helper = new System.Windows.Interop.WindowInteropHelper(win);
+            helper.Owner = uiApp.MainWindowHandle;
+            bool? result = win.ShowDialog();
+
+            return result == true && LicenseManager.IsActivated();
         }
     }
 }

@@ -465,7 +465,7 @@ namespace QicBoqMapper
 
         private bool CanValidateOrGenerate(object parameter)
         {
-            return _excelRecords.Count > 0 && CategoryItems.Any(c => c.IsSelected);
+            return LicenseManager.IsActivated() && _excelRecords.Count > 0 && CategoryItems.Any(c => c.IsSelected);
         }
 
         private void ValidateMapping(object parameter)
@@ -505,6 +505,24 @@ namespace QicBoqMapper
 
         private void GenerateCodes(object parameter)
         {
+            if (!LicenseManager.IsActivated())
+            {
+                var win = new LicenseWindow();
+                var activeWin = System.Windows.Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)
+                                ?? System.Windows.Application.Current.MainWindow;
+                if (activeWin != null)
+                {
+                    win.Owner = activeWin;
+                }
+
+                bool? result = win.ShowDialog();
+                if (result != true || !LicenseManager.IsActivated())
+                {
+                    StatusText = "Activation required to generate 5D BOQ codes.";
+                    return;
+                }
+            }
+
             _eventHandler.QueueAction(uiApp =>
             {
                 try

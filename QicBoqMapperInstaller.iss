@@ -27,12 +27,12 @@ WizardStyle=modern
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "..\Publish\QicBoqMapper.addin"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Publish\QicBoqMapper\QicBoqMapper.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
-Source: "..\Publish\QicBoqMapper\EPPlus.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
-Source: "..\Publish\QicBoqMapper\Microsoft.IO.RecyclableMemoryStream.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
-Source: "..\Publish\QicBoqMapper\System.ComponentModel.Annotations.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
-Source: "..\Publish\QicBoqMapper\Resources\*"; DestDir: "{app}\QicBoqMapper\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\Publish\5D api\QicBoqMapper.addin"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Publish\5D api\QicBoqMapper\QicBoqMapper.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
+Source: "..\Publish\5D api\QicBoqMapper\EPPlus.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
+Source: "..\Publish\5D api\QicBoqMapper\Microsoft.IO.RecyclableMemoryStream.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
+Source: "..\Publish\5D api\QicBoqMapper\System.ComponentModel.Annotations.dll"; DestDir: "{app}\QicBoqMapper"; Flags: ignoreversion
+Source: "..\Publish\5D api\QicBoqMapper\Resources\*"; DestDir: "{app}\QicBoqMapper\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 ; Revit Add-ins typically do not require Start Menu shortcuts

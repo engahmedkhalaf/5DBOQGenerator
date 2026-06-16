@@ -38,8 +38,8 @@ namespace QicBoqMapper
                 string asmPath = Assembly.GetExecutingAssembly().Location;
 
                 panel.AddItem(CreateButton(asmPath, "QicBoqManager", "QIC 5D BOQ\nManager", "QicBoqMapper.QicBoqManagerCommand", "Open the QIC 5D BOQ Manager workflow window."));
-                panel.AddItem(CreateButton(asmPath, "WphLicense", "License", "QicBoqMapper.WphLoginCommand", "Activate your product license."));
-                panel.AddItem(CreateButton(asmPath, "WphAbout", "About", "QicBoqMapper.AboutCommand", "View add-in version and support details."));
+                panel.AddItem(CreateButton(asmPath, "License", "License", "QicBoqMapper.LicenseCommand", "Activate your product license."));
+                panel.AddItem(CreateButton(asmPath, "About", "About", "QicBoqMapper.AboutCommand", "View add-in version and support details."));
 
                 return Result.Succeeded;
             }
@@ -150,8 +150,8 @@ namespace QicBoqMapper
             string icon16 = Path.Combine(dir, "Resources", baseName + "_16.png");
 
             // Fallback icons if specific files don't exist
-            if (!File.Exists(icon32)) icon32 = Path.Combine(dir, "Resources", "WphExport_32.png");
-            if (!File.Exists(icon16)) icon16 = Path.Combine(dir, "Resources", "WphExport_16.png");
+            if (!File.Exists(icon32)) icon32 = Path.Combine(dir, "Resources", "QicBoqManager_32.png");
+            if (!File.Exists(icon16)) icon16 = Path.Combine(dir, "Resources", "QicBoqManager_16.png");
 
             if (File.Exists(icon32))
                 btn.LargeImage = new BitmapImage(new Uri(icon32, UriKind.Absolute));

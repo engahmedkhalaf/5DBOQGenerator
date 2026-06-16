@@ -152,6 +152,21 @@ namespace QicBoqMapper
                         return false;
                     }
 
+                    // Check for license expiration date if present
+                    string expiresPattern = "\"expires_at\"\\s*:\\s*\"([^\"]+)\"";
+                    var match = Regex.Match(trimmedResponse, expiresPattern);
+                    if (match.Success)
+                    {
+                        string expiresStr = match.Groups[1].Value;
+                        if (DateTime.TryParse(expiresStr, out DateTime expiresAt))
+                        {
+                            if (DateTime.UtcNow > expiresAt)
+                            {
+                                return false; // License has expired
+                            }
+                        }
+                    }
+
                     return true;
                 }
             }

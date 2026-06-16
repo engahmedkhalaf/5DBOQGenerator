@@ -166,7 +166,17 @@ namespace QicBoqMapper
                         if (!alreadyBound)
                         {
                             var binding = app.Create.NewInstanceBinding(categories);
-                            bindingMap.Insert(def, binding, BuiltInParameterGroup.PG_DATA);
+                            BuiltInParameterGroup paramGroup = BuiltInParameterGroup.PG_DATA;
+                            if (pName == "QIC_5D_BOQ CODE")
+                            {
+                                paramGroup = BuiltInParameterGroup.PG_IDENTITY_DATA;
+                            }
+                            else if (pName == "PACKAGE_NO" || pName == "BILL_NO" || pName == "SYSTEM_CODE" || 
+                                     pName == "PAGE_NO" || pName == "ITEM_NO")
+                            {
+                                paramGroup = BuiltInParameterGroup.PG_TEXT;
+                            }
+                            bindingMap.Insert(def, binding, paramGroup);
                         }
                     }
                     t.Commit();

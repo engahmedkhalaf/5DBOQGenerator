@@ -222,26 +222,6 @@ namespace QicBoqMapper
     {
         public static bool EnsureActivated(UIApplication uiApp)
         {
-            if (LicenseManager.IsActivated())
-            {
-                // Verify with Supabase upon loading the add-in to ensure password was not changed
-                string email = LicenseManager.GetSavedEmail();
-                string code = LicenseManager.GetSavedCode();
-                
-                // We wrap this in a task wait because this is a synchronous Revit ExternalCommand thread.
-                bool isValid = Task.Run(() => LicenseManager.VerifyPasswordNotChangedAsync(email, code)).GetAwaiter().GetResult();
-                if (!isValid)
-                {
-                    LicenseManager.ClearLicense();
-                    
-                    // Display message instructing the operator to use "Get License" button to re-authenticate
-                    TaskDialog.Show(
-                        "License Deactivated / Security Update",
-                        "Your password has been changed or updated in Supabase.\n\nYou have been logged out, and cached license information has been removed. Licensed features are disabled.\n\nPlease use the 'Get License' / 'License' button to re-authenticate and activate your license again."
-                    );
-                }
-            }
-
             if (!LicenseManager.IsActivated())
             {
                 using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\QicTools\QicBoqMapper"))

@@ -484,18 +484,6 @@ namespace QicBoqMapper
             {
                 try
                 {
-                    ProgressValue = 10;
-                    StatusText = "Verifying license credentials...";
-                    string email = LicenseManager.GetSavedEmail();
-                    string code = LicenseManager.GetSavedCode();
-                    bool isValid = await LicenseManager.VerifyPasswordNotChangedAsync(email, code);
-                    if (!isValid)
-                    {
-                        LicenseManager.ClearLicense();
-                        TriggerLogout();
-                        return;
-                    }
-
                     ProgressValue = 20;
                     StatusText = "Collecting Revit elements...";
                     var selectedCats = CategoryItems.Where(c => c.IsSelected).Select(c => c.Name).ToList();
@@ -549,18 +537,6 @@ namespace QicBoqMapper
             {
                 try
                 {
-                    ProgressValue = 5;
-                    StatusText = "Verifying license credentials...";
-                    string email = LicenseManager.GetSavedEmail();
-                    string code = LicenseManager.GetSavedCode();
-                    bool isValid = await LicenseManager.VerifyPasswordNotChangedAsync(email, code);
-                    if (!isValid)
-                    {
-                        LicenseManager.ClearLicense();
-                        TriggerLogout();
-                        return;
-                    }
-
                     ProgressValue = 10;
                     StatusText = "Creating shared parameters...";
                     var selectedCats = CategoryItems.Where(c => c.IsSelected).Select(c => c.Name).ToList();
@@ -653,24 +629,6 @@ namespace QicBoqMapper
             {
                 MessageBox.Show("Invalid license key. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        public void TriggerLogout()
-        {
-            // Clear VM properties
-            LicenseKey = string.Empty;
-            LicenseStatus = "License: Inactive";
-            
-            // Log out user/Disable licensed features implicitly through CanExecute re-evaluation
-            CommandManager.InvalidateRequerySuggested();
-
-            // Display message instructing the operator to use "Get License" button to re-authenticate and activate their license again.
-            MessageBox.Show(
-                "Your password has been changed or updated in Supabase.\n\nYou have been logged out, and cached license information has been removed. Licensed features are disabled.\n\nPlease use the 'Get License' / 'License' button to re-authenticate and activate your license again.",
-                "License Deactivated / Security Update",
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning
-            );
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

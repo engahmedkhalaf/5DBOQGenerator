@@ -177,13 +177,41 @@ namespace QicBoqMapper
             }
         }
 
-        // High-level activate: validate against the table and persist on success.
+        // High-level activate: validate against the table, claim the device
+        // (trials get device-locked on first use), then persist on success.
         public static async Task<Tuple<bool, string?>> ActivateAsync(string email, string code)
         {
             var result = await ValidateLicenseWithSupabaseAsync(email, code).ConfigureAwait(false);
-            if (result.Item1)
-                SaveActivated(email.Trim().ToLowerInvariant(), code.Trim(), result.Item2);
+            if (!result.Item1) return result;
+
+            string status = await ClaimDeviceAsync(email, code).ConfigureAwait(false);
+            if (status == "device_mismatch")
+                throw new Exception("This trial license is locked to a different device. Please request a paid license to use it on multiple machines.");
+            if (status != "ok")
+                throw new Exception($"License check failed: {status}.");
+
+            SaveActivated(email.Trim().ToLowerInvariant(), code.Trim(), result.Item2);
             return result;
+        }
+
+        private static async Task<string> ClaimDeviceAsync(string email, string code)
+        {
+            string url = $"{SupabaseUrl.TrimEnd('/')}/rest/v1/rpc/claim_device";
+            string body = "{\"p_email\":\"" + JsonEscape(email.Trim().ToLowerInvariant())
+                        + "\",\"p_code\":\"" + JsonEscape(code.Trim())
+                        + "\",\"p_device_id\":\"" + JsonEscape(DeviceFingerprint.Get()) + "\"}";
+
+            using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(20) })
+            {
+                client.DefaultRequestHeaders.Add("apikey", SupabaseAnonKey);
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {SupabaseAnonKey}");
+                var resp = await client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json")).ConfigureAwait(false);
+                string text = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
+                if (!resp.IsSuccessStatusCode)
+                    throw new Exception($"Device check failed ({(int)resp.StatusCode}). {text}");
+                // RPC returns a bare quoted string, e.g. "ok" or "device_mismatch".
+                return text.Trim().Trim('"');
+            }
         }
 
         // --------------- Trial ---------------
@@ -195,7 +223,8 @@ namespace QicBoqMapper
 
             string cleanEmail = email.Trim().ToLowerInvariant();
             string url = $"{SupabaseUrl.TrimEnd('/')}/rest/v1/rpc/start_trial";
-            string body = "{\"p_email\":\"" + JsonEscape(cleanEmail) + "\"}";
+            string body = "{\"p_email\":\"" + JsonEscape(cleanEmail)
+                        + "\",\"p_device_id\":\"" + JsonEscape(DeviceFingerprint.Get()) + "\"}";
 
             using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(20) })
             {
@@ -206,6 +235,8 @@ namespace QicBoqMapper
 
                 if (!resp.IsSuccessStatusCode)
                 {
+                    if (text.Contains("device_mismatch"))
+                        throw new Exception("A trial is already active for this email on a different device. Each trial is locked to one machine.");
                     if (text.Contains("trial_already_used"))
                         throw new Exception("A trial has already been used for this email. Please request a paid activation code.");
                     if (text.Contains("invalid_email"))

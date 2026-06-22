@@ -13,6 +13,7 @@ CREATE TABLE public.licenses (
     expires_at TIMESTAMP WITH TIME ZONE NULL, -- NULL means lifetime license
     is_trial BOOLEAN NOT NULL DEFAULT false,
     product TEXT NULL, -- Slug of the product this license activates (e.g., kh_element_navigator, qic_5d_boq). NULL means unassigned.
+    device_id TEXT NULL, -- For trials: hashed machine fingerprint of the device the trial is locked to. NULL for paid licenses or unbound trials.
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -20,10 +21,12 @@ CREATE TABLE public.licenses (
 -- 3. Disable Row Level Security (RLS) to guarantee the API key has read permissions
 ALTER TABLE public.licenses DISABLE ROW LEVEL SECURITY;
 
--- 3a. RPC: start_trial(p_email)
--- Idempotent: re-calling with an email that already has an active trial returns the same row.
--- Refuses if the email already has any non-trial license, or a trial that has expired/been deactivated.
-CREATE OR REPLACE FUNCTION public.start_trial(p_email TEXT)
+-- 3a. RPC: start_trial(p_email, p_device_id)
+-- Creates (or returns an existing in-flight) trial license, optionally
+-- locked to a device fingerprint. Idempotent if same device. Throws
+-- 'trial_already_used' if the email has any non-trial / expired license.
+-- Throws 'device_mismatch' if the existing trial belongs to a different device.
+CREATE OR REPLACE FUNCTION public.start_trial(p_email TEXT, p_device_id TEXT DEFAULT NULL)
 RETURNS TABLE(activation_code TEXT, expires_at TIMESTAMPTZ)
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -31,11 +34,14 @@ SET search_path = public
 AS $$
 DECLARE
     v_email TEXT;
+    v_device TEXT;
     v_existing public.licenses%ROWTYPE;
     v_new_code TEXT;
     v_expires TIMESTAMPTZ;
 BEGIN
     v_email := lower(trim(p_email));
+    v_device := NULLIF(trim(p_device_id), '');
+
     IF v_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' THEN
         RAISE EXCEPTION 'invalid_email';
     END IF;
@@ -47,6 +53,11 @@ BEGIN
            AND v_existing.status = 'active'
            AND v_existing.expires_at IS NOT NULL
            AND v_existing.expires_at > now() THEN
+            IF v_existing.device_id IS NOT NULL
+               AND v_device IS NOT NULL
+               AND v_existing.device_id <> v_device THEN
+                RAISE EXCEPTION 'device_mismatch';
+            END IF;
             RETURN QUERY SELECT v_existing.activation_code, v_existing.expires_at;
             RETURN;
         ELSE
@@ -57,14 +68,53 @@ BEGIN
     v_new_code := 'TRIAL-' || upper(substr(md5(random()::text || clock_timestamp()::text), 1, 10));
     v_expires := now() + interval '30 days';
 
-    INSERT INTO public.licenses (email, activation_code, status, expires_at, is_trial)
-    VALUES (v_email, v_new_code, 'active', v_expires, true);
+    INSERT INTO public.licenses (email, activation_code, status, expires_at, is_trial, device_id)
+    VALUES (v_email, v_new_code, 'active', v_expires, true, v_device);
 
     RETURN QUERY SELECT v_new_code, v_expires;
 END;
 $$;
+GRANT EXECUTE ON FUNCTION public.start_trial(TEXT, TEXT) TO anon, authenticated;
 
-GRANT EXECUTE ON FUNCTION public.start_trial(TEXT) TO anon, authenticated;
+-- 3b. RPC: claim_device(p_email, p_code, p_device_id)
+-- Validates a license at activation time and binds the device fingerprint
+-- for trials. Paid licenses ignore device binding entirely.
+-- Returns 'ok', 'not_found', 'expired', or 'device_mismatch'.
+CREATE OR REPLACE FUNCTION public.claim_device(p_email TEXT, p_code TEXT, p_device_id TEXT)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_email TEXT;
+    v_code TEXT;
+    v_device TEXT;
+    v_row public.licenses%ROWTYPE;
+BEGIN
+    v_email := lower(trim(p_email));
+    v_code := trim(p_code);
+    v_device := NULLIF(trim(p_device_id), '');
+
+    SELECT * INTO v_row FROM public.licenses
+     WHERE lower(email) = v_email AND activation_code = v_code;
+
+    IF NOT FOUND THEN RETURN 'not_found'; END IF;
+    IF v_row.status <> 'active' THEN RETURN 'expired'; END IF;
+    IF v_row.expires_at IS NOT NULL AND v_row.expires_at <= now() THEN RETURN 'expired'; END IF;
+
+    IF v_row.is_trial THEN
+        IF v_row.device_id IS NULL THEN
+            UPDATE public.licenses SET device_id = v_device, updated_at = now() WHERE id = v_row.id;
+        ELSIF v_row.device_id <> COALESCE(v_device, '') THEN
+            RETURN 'device_mismatch';
+        END IF;
+    END IF;
+
+    RETURN 'ok';
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.claim_device(TEXT, TEXT, TEXT) TO anon, authenticated;
 
 -- 4. Insert clean test licenses
 INSERT INTO public.licenses (email, activation_code, status, expires_at)

@@ -5,7 +5,7 @@
 
 #define MyAppName "QIC 5D BOQ Manager"
 #define MyAppVersion "1.0.0"
-#define PublishDir "D:\API Khalaf\Revit API\Publish\5D api"
+#define PublishDir "C:\ProgramData\Autodesk\Revit\Addins\2023"
 
 [Setup]
 AppId={{A1F3E8B4-1234-5678-ABCD-987654321000}
@@ -28,7 +28,7 @@ Name: "{commonappdata}\Autodesk\Revit\Addins\2023\QicBoqMapper"
 
 [Files]
 ; Add-in manifest
-Source: "{#PublishDir}\QicBoqMapper.addin"; DestDir: "{commonappdata}\Autodesk\Revit\Addins\2023"; Flags: ignoreversion
+Source: "QicBoqMapper\QicBoqMapper.addin"; DestDir: "{commonappdata}\Autodesk\Revit\Addins\2023"; Flags: ignoreversion
 
 ; All application files (DLL, PDB, Resources subfolder)
 Source: "{#PublishDir}\QicBoqMapper\*"; DestDir: "{commonappdata}\Autodesk\Revit\Addins\2023\QicBoqMapper"; Flags: ignoreversion recursesubdirs createallsubdirs

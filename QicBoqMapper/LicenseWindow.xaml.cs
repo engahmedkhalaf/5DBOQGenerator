@@ -41,15 +41,10 @@ namespace QicBoqMapper
                 StatusLabel.Visibility = Visibility.Visible;
 
                 var trial = await Task.Run(() => LicenseManager.StartTrialAsync(email));
-                string trialEmail = trial.Item1;
-                string trialCode = trial.Item2;
                 string? expiresAtStr = trial.Item3;
 
-                // Sign in (will sign-up + sign-in under the hood since the auth
-                // user doesn't exist yet). This writes the encrypted session
-                // tokens to the registry instead of the plaintext code.
-                await Task.Run(() => LicenseManager.SignInAsync(trialEmail, trialCode));
-
+                // StartTrialAsync already persisted the encrypted code+expiry to
+                // the registry; nothing else to save here.
                 CodeTextBox.Text = string.Empty; // don't leave the code visible in the UI
                 BuyNowPanel.Visibility = Visibility.Collapsed;
                 StatusLabel.Text = $"Trial activated. Expires {expiresAtStr}.";
@@ -106,12 +101,21 @@ namespace QicBoqMapper
                 StatusLabel.Foreground = System.Windows.Media.Brushes.Orange;
                 StatusLabel.Visibility = Visibility.Visible;
 
-                var result = await Task.Run(() => LicenseManager.SignInAsync(email, code));
+                var result = await Task.Run(() => LicenseManager.ActivateAsync(email, code));
                 this.IsEnabled = true;
 
-                StatusLabel.Text = result.LicenseExpiresAtStr == null
+                if (!result.Item1)
+                {
+                    StatusLabel.Text = "Error: License not found, inactive, or expired.";
+                    StatusLabel.Foreground = System.Windows.Media.Brushes.LightPink;
+                    StatusLabel.Visibility = Visibility.Visible;
+                    MessageBox.Show("Invalid, inactive, or expired license.", "License Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                StatusLabel.Text = result.Item2 == null
                     ? "Status: Activated successfully (lifetime)."
-                    : $"Status: Activated. Expires {result.LicenseExpiresAtStr}.";
+                    : $"Status: Activated. Expires {result.Item2}.";
                 StatusLabel.Foreground = System.Windows.Media.Brushes.LightGreen;
                 StatusLabel.Visibility = Visibility.Visible;
                 MessageBox.Show("Product license activated successfully!", "License Manager", MessageBoxButton.OK, MessageBoxImage.Information);

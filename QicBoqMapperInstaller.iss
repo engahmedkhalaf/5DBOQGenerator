@@ -31,7 +31,7 @@ Name: "{commonappdata}\Autodesk\Revit\Addins\2023\QicBoqMapper"
 Source: "QicBoqMapper\QicBoqMapper.addin"; DestDir: "{commonappdata}\Autodesk\Revit\Addins\2023"; Flags: ignoreversion
 
 ; All application files (DLL, PDB, Resources subfolder)
-Source: "{#PublishDir}\QicBoqMapper\*"; DestDir: "{commonappdata}\Autodesk\Revit\Addins\2023\QicBoqMapper"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "QicBoqMapper\bin\Debug\net48\*"; DestDir: "{commonappdata}\Autodesk\Revit\Addins\2023\QicBoqMapper"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Code]
 function InitializeSetup(): Boolean;

@@ -204,5 +204,58 @@ namespace QicBoqMapper
                 throw new Exception($"Supabase connection failed: {ex.Message}");
             }
         }
+
+        public static async Task<bool> VerifyPasswordNotChangedAsync(string email, string code)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code))
+                return false;
+
+            try
+            {
+                // We perform a POST request to Supabase auth to sign in with the email and the activation_code as the password.
+                // If the administrator changes the user's password in Supabase, this login request will fail (400 Bad Request / 401 Unauthorized), 
+                // meaning the password has changed, and we must trigger a logout/reset.
+                string requestUrl = $"{SupabaseUrl.TrimEnd('/')}/auth/v1/token?grant_type=password";
+
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("apikey", SupabaseAnonKey);
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {SupabaseAnonKey}");
+                    
+                    string jsonBody = $"{{\"email\":\"{email.Trim().ToLower()}\",\"password\":\"{code.Trim()}\"}}";
+                    var content = new StringContent(jsonBody, System.Text.Encoding.UTF8, "application/json");
+
+                    var response = await client.PostAsync(requestUrl, content).ConfigureAwait(false);
+                    return response.IsSuccessStatusCode;
+                }
+            }
+            catch
+            {
+                // If there's a connection issue or network failure (e.g. internet down, firewall, proxy, offline),
+                // we should assume the license status remains valid rather than aggressively logging the user out.
+                return true;
+            }
+        }
+
+        public static void ClearLicense()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegistryPath))
+                {
+                    if (key != null)
+                    {
+                        try { key.DeleteValue(EmailValueName, false); } catch { }
+                        try { key.DeleteValue(CodeValueName, false); } catch { }
+                        try { key.DeleteValue(LastVerifiedValueName, false); } catch { }
+                        try { key.DeleteValue(ExpiresAtValueName, false); } catch { }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to clear license in Registry: {ex.Message}");
+            }
+        }
     }
 }

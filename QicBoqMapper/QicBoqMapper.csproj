@@ -42,7 +42,11 @@
     <None Include="QicBoqMapper.addin" />
   </ItemGroup>
 
-  <Target Name="AutoDeployToRevit" AfterTargets="Build">
+  <PropertyGroup>
+    <DeployOnBuild Condition="'$(DeployOnBuild)'==''">true</DeployOnBuild>
+  </PropertyGroup>
+
+  <Target Name="AutoDeployToRevit" AfterTargets="Build" Condition="'$(DeployOnBuild)' == 'true'">
     <PropertyGroup>
       <RevitAddinsDir>C:\ProgramData\Autodesk\Revit\Addins\2023</RevitAddinsDir>
       <RevitAddinSubFolder>$(RevitAddinsDir)\QicBoqMapper</RevitAddinSubFolder>
@@ -50,16 +54,16 @@
     <Message Importance="High" Text="Deploying add-in files to: $(RevitAddinSubFolder)" />
     <MakeDir Directories="$(RevitAddinsDir)" Condition="!Exists('$(RevitAddinsDir)')" />
     <MakeDir Directories="$(RevitAddinSubFolder)" Condition="!Exists('$(RevitAddinSubFolder)')" />
-    <Copy SourceFiles="$(ProjectDir)QicBoqMapper.addin" DestinationFolder="$(RevitAddinsDir)" ContinueOnError="WarnAndContinue" />
+    <Copy SourceFiles="$(ProjectDir)QicBoqMapper.addin" DestinationFolder="$(RevitAddinsDir)" ContinueOnError="true" />
     <ItemGroup>
       <AddinDlls Include="$(OutputPath)*.dll" />
       <AddinPdbs Include="$(OutputPath)*.pdb" />
     </ItemGroup>
-    <Copy SourceFiles="@(AddinDlls)" DestinationFolder="$(RevitAddinSubFolder)" ContinueOnError="WarnAndContinue" />
-    <Copy SourceFiles="@(AddinPdbs)" DestinationFolder="$(RevitAddinSubFolder)" ContinueOnError="WarnAndContinue" />
+    <Copy SourceFiles="@(AddinDlls)" DestinationFolder="$(RevitAddinSubFolder)" ContinueOnError="true" />
+    <Copy SourceFiles="@(AddinPdbs)" DestinationFolder="$(RevitAddinSubFolder)" ContinueOnError="true" />
     <ItemGroup>
       <ResourceFiles Include="$(ProjectDir)Resources\*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(ResourceFiles)" DestinationFolder="$(RevitAddinSubFolder)\Resources" ContinueOnError="WarnAndContinue" />
+    <Copy SourceFiles="@(ResourceFiles)" DestinationFolder="$(RevitAddinSubFolder)\Resources" ContinueOnError="true" />
   </Target>
 </Project>

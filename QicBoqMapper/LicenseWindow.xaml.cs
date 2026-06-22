@@ -10,11 +10,75 @@ namespace QicBoqMapper
         {
             InitializeComponent();
             
+            EmailTextBox.Text = LicenseManager.GetSavedEmail();
+
             if (LicenseManager.IsActivated())
             {
                 StatusLabel.Text = "Status: Activated successfully.";
                 StatusLabel.Foreground = System.Windows.Media.Brushes.LightGreen;
                 StatusLabel.Visibility = Visibility.Visible;
+            }
+            else if (LicenseManager.IsExpired())
+            {
+                BuyNowPanel.Visibility = Visibility.Visible;
+            }
+        }
+
+        private async void StartTrial_Click(object sender, RoutedEventArgs e)
+        {
+            string email = EmailTextBox.Text;
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                MessageBox.Show("Please enter your email above to start a free trial.", "Free Trial", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            try
+            {
+                this.IsEnabled = false;
+                StatusLabel.Text = "Requesting trial license... Please wait.";
+                StatusLabel.Foreground = System.Windows.Media.Brushes.Orange;
+                StatusLabel.Visibility = Visibility.Visible;
+
+                var trial = await Task.Run(() => LicenseManager.StartTrialAsync(email));
+                string trialEmail = trial.Item1;
+                string trialCode = trial.Item2;
+                string? expiresAtStr = trial.Item3;
+
+                LicenseManager.SaveLicense(trialEmail, trialCode, true, expiresAtStr);
+
+                CodeTextBox.Text = trialCode;
+                BuyNowPanel.Visibility = Visibility.Collapsed;
+                StatusLabel.Text = $"Trial activated. Expires {expiresAtStr}.";
+                StatusLabel.Foreground = System.Windows.Media.Brushes.LightGreen;
+                this.IsEnabled = true;
+                MessageBox.Show($"Your 30-day free trial is now active.\nExpires: {expiresAtStr}", "Free Trial", MessageBoxButton.OK, MessageBoxImage.Information);
+                this.DialogResult = true;
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                this.IsEnabled = true;
+                StatusLabel.Text = $"Error: {ex.Message}";
+                StatusLabel.Foreground = System.Windows.Media.Brushes.LightPink;
+                StatusLabel.Visibility = Visibility.Visible;
+                MessageBox.Show(ex.Message, "Free Trial", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void BuyNow_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string email = string.IsNullOrWhiteSpace(EmailTextBox.Text) ? "(Not specified)" : EmailTextBox.Text.Trim();
+                string subject = "QicBoqMapper Add-in License Purchase";
+                string body = $"Hello Ahmed,\n\nMy 30-day trial has ended and I would like to purchase a full license.\n\nEmail: {email}\nMachine: {Environment.MachineName} ({Environment.UserName})\n";
+                string mailto = $"mailto:engkhalaf7@gmail.com?subject={Uri.EscapeDataString(subject)}&body={Uri.EscapeDataString(body)}";
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(mailto) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open email client: {ex.Message}\n\nYou can manually email engkhalaf7@gmail.com.", "License Manager", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -41,7 +105,7 @@ namespace QicBoqMapper
 
                 var validationResult = await Task.Run(() => LicenseManager.ValidateLicenseWithSupabaseAsync(email, code));
                 bool isValid = validationResult.Item1;
-                string expiresAtStr = validationResult.Item2;
+                string? expiresAtStr = validationResult.Item2;
 
                 this.IsEnabled = true;
 

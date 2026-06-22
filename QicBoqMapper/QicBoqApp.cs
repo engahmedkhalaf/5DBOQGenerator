@@ -41,6 +41,8 @@ namespace QicBoqMapper
                 panel.AddItem(CreateButton(asmPath, "License", "License", "QicBoqMapper.LicenseCommand", "Activate your product license."));
                 panel.AddItem(CreateButton(asmPath, "About", "About", "QicBoqMapper.AboutCommand", "View add-in version and support details."));
 
+                UpdateChecker.CheckAsync();
+
                 return Result.Succeeded;
             }
             catch (Exception ex)

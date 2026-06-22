@@ -449,17 +449,17 @@ namespace QicBoqMapper
                         QicBoqExportService.ExportElements(sfd.FileName, _doc, elements);
 
                         ProgressValue = 100;
-                        StatusText = $"Exported {elements.Count} elements. Opening file...";
+                        StatusText = "Elements exported successfully.";
+                        MessageBox.Show($"Successfully exported {elements.Count} elements to Excel!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                        // Open the exported file directly. No success popup —
-                        // the file opening is the success signal.
+                        // Automatically open the exported Excel file after OK
                         try
                         {
                             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(sfd.FileName) { UseShellExecute = true });
                         }
                         catch (Exception exStart)
                         {
-                            MessageBox.Show($"Exported, but could not open file:\n{exStart.Message}\n\nLocation: {sfd.FileName}", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                            MessageBox.Show($"Could not automatically open Excel file:\n{exStart.Message}", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                     }
                     catch (Exception ex)
@@ -601,16 +601,17 @@ namespace QicBoqMapper
                     else if (ext == ".csv") QicBoqAuditExporter.ExportToCsv(sfd.FileName, _auditRecords);
                     else if (ext == ".json") QicBoqAuditExporter.ExportToJson(sfd.FileName, _auditRecords);
 
-                    StatusText = "Audit report exported. Opening file...";
+                    StatusText = "Audit report exported successfully.";
+                    MessageBox.Show("Audit report saved successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // Open the report directly. No success popup.
+                    // Automatically open the exported file after OK
                     try
                     {
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(sfd.FileName) { UseShellExecute = true });
                     }
                     catch (Exception exStart)
                     {
-                        MessageBox.Show($"Exported, but could not open file:\n{exStart.Message}\n\nLocation: {sfd.FileName}", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show($"Could not automatically open file:\n{exStart.Message}", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
                 catch (Exception ex)

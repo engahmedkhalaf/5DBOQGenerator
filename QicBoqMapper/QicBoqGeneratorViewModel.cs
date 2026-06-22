@@ -430,7 +430,8 @@ namespace QicBoqMapper
             {
                 Filter = "Excel Workbook (*.xlsx)|*.xlsx",
                 Title = "Save Exported Elements As",
-                FileName = "QIC_BOQ_Exported_Elements"
+                FileName = "QIC_BOQ_Exported_Elements",
+                OverwritePrompt = false  // silent overwrite of existing file
             };
 
             if (sfd.ShowDialog() == true)
@@ -461,6 +462,12 @@ namespace QicBoqMapper
                         {
                             MessageBox.Show($"Could not automatically open Excel file:\n{exStart.Message}", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
+                    }
+                    catch (System.IO.IOException ioEx) when (ioEx.Message.Contains("being used by another process"))
+                    {
+                        ProgressValue = 0;
+                        StatusText = "File is open in Excel.";
+                        MessageBox.Show($"The file appears to be open in Excel.\nPlease close it and try again.\n\n{sfd.FileName}", "File in Use", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                     catch (Exception ex)
                     {
@@ -589,7 +596,8 @@ namespace QicBoqMapper
             {
                 Filter = "Excel Workbook (*.xlsx)|*.xlsx|CSV UTF-8 (*.csv)|*.csv|JSON File (*.json)|*.json",
                 Title = "Save Audit Report As",
-                FileName = "QIC_BOQ_Audit_Report"
+                FileName = "QIC_BOQ_Audit_Report",
+                OverwritePrompt = false  // silent overwrite of existing file
             };
 
             if (sfd.ShowDialog() == true)
@@ -613,6 +621,10 @@ namespace QicBoqMapper
                     {
                         MessageBox.Show($"Could not automatically open file:\n{exStart.Message}", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
+                }
+                catch (System.IO.IOException ioEx) when (ioEx.Message.Contains("being used by another process"))
+                {
+                    MessageBox.Show($"The file appears to be open in Excel.\nPlease close it and try again.\n\n{sfd.FileName}", "File in Use", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 catch (Exception ex)
                 {

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace QicBoqMapper
 {
@@ -24,8 +26,20 @@ namespace QicBoqMapper
                 for (int i = 0; i < headers.Length; i++)
                 {
                     ws.Cells[1, i + 1].Value = headers[i];
-                    ws.Cells[1, i + 1].Style.Font.Bold = true;
                 }
+
+                // Style the header row: light-blue fill, bold dark text, centered.
+                var headerRange = ws.Cells[1, 1, 1, headers.Length];
+                headerRange.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                headerRange.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(0xBD, 0xD7, 0xEE)); // light blue (Excel "Blue, Accent 1, Lighter 60%")
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Font.Color.SetColor(Color.FromArgb(0x1F, 0x3A, 0x5F));         // dark navy
+                headerRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                headerRange.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                headerRange.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                headerRange.Style.Border.Bottom.Color.SetColor(Color.FromArgb(0x9D, 0xC3, 0xE6));
+                ws.Row(1).Height = 22;
+                ws.View.FreezePanes(2, 1); // freeze the header row
 
                 int row = 2;
                 foreach (var rec in records)

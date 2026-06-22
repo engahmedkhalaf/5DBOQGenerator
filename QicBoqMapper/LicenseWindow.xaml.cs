@@ -45,9 +45,12 @@ namespace QicBoqMapper
                 string trialCode = trial.Item2;
                 string? expiresAtStr = trial.Item3;
 
-                LicenseManager.SaveLicense(trialEmail, trialCode, true, expiresAtStr);
+                // Sign in (will sign-up + sign-in under the hood since the auth
+                // user doesn't exist yet). This writes the encrypted session
+                // tokens to the registry instead of the plaintext code.
+                await Task.Run(() => LicenseManager.SignInAsync(trialEmail, trialCode));
 
-                CodeTextBox.Text = trialCode;
+                CodeTextBox.Text = string.Empty; // don't leave the code visible in the UI
                 BuyNowPanel.Visibility = Visibility.Collapsed;
                 StatusLabel.Text = $"Trial activated. Expires {expiresAtStr}.";
                 StatusLabel.Foreground = System.Windows.Media.Brushes.LightGreen;
@@ -89,7 +92,7 @@ namespace QicBoqMapper
 
             if (!LicenseManager.ValidateInput(email, code))
             {
-                StatusLabel.Text = "Error: Invalid email address or activation code (min 8 characters).";
+                StatusLabel.Text = "Error: Invalid email address or activation code.";
                 StatusLabel.Foreground = System.Windows.Media.Brushes.LightPink;
                 StatusLabel.Visibility = Visibility.Visible;
                 MessageBox.Show("Validation failed. Please verify your email and code.", "License Manager", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -99,43 +102,29 @@ namespace QicBoqMapper
             try
             {
                 this.IsEnabled = false;
-                StatusLabel.Text = "Validating with Supabase... Please wait.";
+                StatusLabel.Text = "Signing in to Supabase... Please wait.";
                 StatusLabel.Foreground = System.Windows.Media.Brushes.Orange;
                 StatusLabel.Visibility = Visibility.Visible;
 
-                var validationResult = await Task.Run(() => LicenseManager.ValidateLicenseWithSupabaseAsync(email, code));
-                bool isValid = validationResult.Item1;
-                string? expiresAtStr = validationResult.Item2;
-
+                var result = await Task.Run(() => LicenseManager.SignInAsync(email, code));
                 this.IsEnabled = true;
 
-                if (isValid)
-                {
-                    LicenseManager.SaveLicense(email, code, true, expiresAtStr);
-                    StatusLabel.Text = "Status: Activated successfully.";
-                    StatusLabel.Foreground = System.Windows.Media.Brushes.LightGreen;
-                    StatusLabel.Visibility = Visibility.Visible;
-                    MessageBox.Show("Product license activated successfully!", "License Manager", MessageBoxButton.OK, MessageBoxImage.Information);
-                    this.DialogResult = true;
-                    this.Close();
-                }
-                else
-                {
-                    LicenseManager.SaveLicense(email, code, false);
-                    StatusLabel.Text = "Error: License not found, inactive, or expired.";
-                    StatusLabel.Foreground = System.Windows.Media.Brushes.LightPink;
-                    StatusLabel.Visibility = Visibility.Visible;
-                    MessageBox.Show("Invalid, inactive, or expired license. Verification failed.", "License Manager", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                StatusLabel.Text = result.LicenseExpiresAtStr == null
+                    ? "Status: Activated successfully (lifetime)."
+                    : $"Status: Activated. Expires {result.LicenseExpiresAtStr}.";
+                StatusLabel.Foreground = System.Windows.Media.Brushes.LightGreen;
+                StatusLabel.Visibility = Visibility.Visible;
+                MessageBox.Show("Product license activated successfully!", "License Manager", MessageBoxButton.OK, MessageBoxImage.Information);
+                this.DialogResult = true;
+                this.Close();
             }
             catch (Exception ex)
             {
                 this.IsEnabled = true;
-                try { LicenseManager.SaveLicense(email, code, false); } catch { }
                 StatusLabel.Text = $"Error: {ex.Message}";
                 StatusLabel.Foreground = System.Windows.Media.Brushes.LightPink;
                 StatusLabel.Visibility = Visibility.Visible;
-                MessageBox.Show($"An error occurred during license activation:\n{ex.Message}", "License Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "License Manager", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

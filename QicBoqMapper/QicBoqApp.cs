@@ -43,6 +43,14 @@ namespace QicBoqMapper
 
                 UpdateChecker.CheckAsync();
 
+                // Silent one-shot upgrade: if the registry still has the legacy
+                // plaintext ActivationCode, exchange it for an encrypted
+                // Supabase Auth session and wipe the plaintext value.
+                System.Threading.Tasks.Task.Run(async () =>
+                {
+                    try { await LicenseManager.MigrateLegacyPlaintextAsync(); } catch { }
+                });
+
                 return Result.Succeeded;
             }
             catch (Exception ex)

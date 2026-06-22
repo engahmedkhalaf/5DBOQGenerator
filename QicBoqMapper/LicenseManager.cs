@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Win32;
@@ -52,6 +53,27 @@ namespace QicBoqMapper
             }
         }
 
+        public static bool IsExpired()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryPath))
+                {
+                    if (key == null) return false;
+                    object expiresAtVal = key.GetValue(ExpiresAtValueName);
+                    if (expiresAtVal == null || string.IsNullOrWhiteSpace(expiresAtVal.ToString()))
+                        return false;
+                    if (DateTimeOffset.TryParse(expiresAtVal.ToString(), out DateTimeOffset expiresAt))
+                        return DateTimeOffset.UtcNow > expiresAt;
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static string GetSavedEmail()
         {
             try
@@ -84,7 +106,7 @@ namespace QicBoqMapper
             }
         }
 
-        public static void SaveLicense(string email, string code, bool isActivated, string expiresAtStr = null)
+        public static void SaveLicense(string email, string code, bool isActivated, string? expiresAtStr = null)
         {
             try
             {
@@ -134,10 +156,10 @@ namespace QicBoqMapper
             return validEmail && validCode;
         }
 
-        public static async Task<Tuple<bool, string>> ValidateLicenseWithSupabaseAsync(string email, string code)
+        public static async Task<Tuple<bool, string?>> ValidateLicenseWithSupabaseAsync(string email, string code)
         {
             if (!ValidateInput(email, code))
-                return Tuple.Create(false, (string)null);
+                return Tuple.Create<bool, string?>(false, null);
 
             try
             {
@@ -167,23 +189,23 @@ namespace QicBoqMapper
                     
                     if (!trimmedResponse.StartsWith("[") || !trimmedResponse.EndsWith("]"))
                     {
-                        return Tuple.Create(false, (string)null);
+                        return Tuple.Create<bool, string?>(false, null);
                     }
 
                     if (trimmedResponse == "[]")
                     {
-                        return Tuple.Create(false, (string)null);
+                        return Tuple.Create<bool, string?>(false, null);
                     }
 
                     if (trimmedResponse.Contains("\"status\"") && !trimmedResponse.Contains("\"status\":\"active\"") && !trimmedResponse.Contains("\"status\": \"active\""))
                     {
-                        return Tuple.Create(false, (string)null);
+                        return Tuple.Create<bool, string?>(false, null);
                     }
 
                     // Check for license expiration date if present
                     string expiresPattern = "\"expires_at\"\\s*:\\s*\"([^\"]+)\"";
                     var match = Regex.Match(trimmedResponse, expiresPattern);
-                    string expiresAtStr = null;
+                    string? expiresAtStr = null;
                     if (match.Success)
                     {
                         expiresAtStr = match.Groups[1].Value;
@@ -191,12 +213,12 @@ namespace QicBoqMapper
                         {
                             if (DateTimeOffset.UtcNow > expiresAt)
                             {
-                                return Tuple.Create(false, (string)null); // License has expired
+                                return Tuple.Create<bool, string?>(false, null); // License has expired
                             }
                         }
                     }
 
-                    return Tuple.Create(true, expiresAtStr);
+                    return Tuple.Create<bool, string?>(true, expiresAtStr);
                 }
             }
             catch (Exception ex)
@@ -213,7 +235,7 @@ namespace QicBoqMapper
             try
             {
                 // We perform a POST request to Supabase auth to sign in with the email and the activation_code as the password.
-                // If the administrator changes the user's password in Supabase, this login request will fail (400 Bad Request / 401 Unauthorized), 
+                // If the administrator changes the user's password in Supabase, this login request will fail (400 Bad Request / 401 Unauthorized),
                 // meaning the password has changed, and we must trigger a logout/reset.
                 string requestUrl = $"{SupabaseUrl.TrimEnd('/')}/auth/v1/token?grant_type=password";
 
@@ -221,7 +243,7 @@ namespace QicBoqMapper
                 {
                     client.DefaultRequestHeaders.Add("apikey", SupabaseAnonKey);
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {SupabaseAnonKey}");
-                    
+
                     string jsonBody = $"{{\"email\":\"{email.Trim().ToLower()}\",\"password\":\"{code.Trim()}\"}}";
                     var content = new StringContent(jsonBody, System.Text.Encoding.UTF8, "application/json");
 
@@ -255,6 +277,45 @@ namespace QicBoqMapper
             catch (Exception ex)
             {
                 throw new Exception($"Failed to clear license in Registry: {ex.Message}");
+            }
+        }
+
+        // Returns (email, activationCode, expiresAtStr). Throws on failure.
+        public static async Task<Tuple<string, string, string?>> StartTrialAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email) || !Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                throw new Exception("Please enter a valid email address.");
+
+            string cleanEmail = email.Trim().ToLower();
+            string requestUrl = $"{SupabaseUrl.TrimEnd('/')}/rest/v1/rpc/start_trial";
+            string body = "{\"p_email\":\"" + cleanEmail.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"}";
+
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("apikey", SupabaseAnonKey);
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {SupabaseAnonKey}");
+
+                var content = new StringContent(body, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(requestUrl, content).ConfigureAwait(false);
+                string responseText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    if (responseText.Contains("trial_already_used"))
+                        throw new Exception("A trial has already been used for this email. Please request a paid activation code.");
+                    if (responseText.Contains("invalid_email"))
+                        throw new Exception("Please enter a valid email address.");
+                    throw new Exception($"Trial request failed ({(int)response.StatusCode}). {responseText}");
+                }
+
+                var codeMatch = Regex.Match(responseText, "\"activation_code\"\\s*:\\s*\"([^\"]+)\"");
+                var expMatch = Regex.Match(responseText, "\"expires_at\"\\s*:\\s*\"([^\"]+)\"");
+                if (!codeMatch.Success)
+                    throw new Exception("Unexpected server response. Please try again later.");
+
+                string code = codeMatch.Groups[1].Value;
+                string? expiresAtStr = expMatch.Success ? expMatch.Groups[1].Value : null;
+                return Tuple.Create<string, string, string?>(cleanEmail, code, expiresAtStr);
             }
         }
     }

@@ -11,12 +11,58 @@ CREATE TABLE public.licenses (
     activation_code TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'expired')),
     expires_at TIMESTAMP WITH TIME ZONE NULL, -- NULL means lifetime license
+    is_trial BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 -- 3. Disable Row Level Security (RLS) to guarantee the API key has read permissions
 ALTER TABLE public.licenses DISABLE ROW LEVEL SECURITY;
+
+-- 3a. RPC: start_trial(p_email)
+-- Idempotent: re-calling with an email that already has an active trial returns the same row.
+-- Refuses if the email already has any non-trial license, or a trial that has expired/been deactivated.
+CREATE OR REPLACE FUNCTION public.start_trial(p_email TEXT)
+RETURNS TABLE(activation_code TEXT, expires_at TIMESTAMPTZ)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    v_email TEXT;
+    v_existing public.licenses%ROWTYPE;
+    v_new_code TEXT;
+    v_expires TIMESTAMPTZ;
+BEGIN
+    v_email := lower(trim(p_email));
+    IF v_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' THEN
+        RAISE EXCEPTION 'invalid_email';
+    END IF;
+
+    SELECT * INTO v_existing FROM public.licenses WHERE lower(email) = v_email;
+
+    IF FOUND THEN
+        IF v_existing.is_trial
+           AND v_existing.status = 'active'
+           AND v_existing.expires_at IS NOT NULL
+           AND v_existing.expires_at > now() THEN
+            RETURN QUERY SELECT v_existing.activation_code, v_existing.expires_at;
+            RETURN;
+        ELSE
+            RAISE EXCEPTION 'trial_already_used';
+        END IF;
+    END IF;
+
+    v_new_code := 'TRIAL-' || upper(substr(md5(random()::text || clock_timestamp()::text), 1, 10));
+    v_expires := now() + interval '30 days';
+
+    INSERT INTO public.licenses (email, activation_code, status, expires_at, is_trial)
+    VALUES (v_email, v_new_code, 'active', v_expires, true);
+
+    RETURN QUERY SELECT v_new_code, v_expires;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.start_trial(TEXT) TO anon, authenticated;
 
 -- 4. Insert clean test licenses
 INSERT INTO public.licenses (email, activation_code, status, expires_at)

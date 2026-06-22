@@ -9,7 +9,7 @@ namespace QicBoqMapper
 {
     public static class QicBoqManager
     {
-        public static List<Element> GetElements(Document doc, UIDocument uiDoc, string selectionMode, List<string> selectedCategoryNames, string categoryFilterText = "", string familyFilterText = "", string typeFilterText = "")
+        public static List<Element> GetElements(Document doc, UIDocument? uiDoc, string selectionMode, List<string> selectedCategoryNames, string categoryFilterText = "", string familyFilterText = "", string typeFilterText = "")
         {
             var elements = new List<Element>();
             if (selectedCategoryNames == null || selectedCategoryNames.Count == 0)
@@ -221,7 +221,7 @@ namespace QicBoqMapper
 
                 // Get type name and family
                 var typeId = element.GetTypeId();
-                ElementType typeElem = null;
+                ElementType? typeElem = null;
                 if (typeId != ElementId.InvalidElementId)
                 {
                     typeElem = doc.GetElement(typeId) as ElementType;
@@ -249,12 +249,12 @@ namespace QicBoqMapper
                 catch { }
 
                 // Matching
-                BoqRecord matchedBoq = null;
+                BoqRecord? matchedBoq = null;
                 bool isMatched = false;
 
                 // Match by Element ID first
                 string elemIdStr = element.Id.ToString();
-                if (idDict.TryGetValue(elemIdStr, out matchedBoq))
+                if (idDict.TryGetValue(elemIdStr, out matchedBoq!))
                 {
                     isMatched = true;
                 }
@@ -360,11 +360,11 @@ namespace QicBoqMapper
                     SetParameterValue(element, "QIC_5D_BOQ CODE", audit.GeneratedBoqCode);
 
                     // Lookup matching BoqRecord for optional parameters
-                    BoqRecord matchedBoq = null;
+                    BoqRecord? matchedBoq = null;
                     bool found = false;
 
                     // Match by Element ID first
-                    if (idDict.TryGetValue(elemIdStr, out matchedBoq))
+                    if (idDict.TryGetValue(elemIdStr, out matchedBoq!))
                     {
                         found = true;
                     }
@@ -374,7 +374,7 @@ namespace QicBoqMapper
                         var typeId = element.GetTypeId();
                         var typeElem = typeId != ElementId.InvalidElementId ? doc.GetElement(typeId) as ElementType : null;
                         string key = $"{audit.Category}|{typeElem?.FamilyName ?? ""}|{typeElem?.Name ?? element.Name}";
-                        found = typeDict.TryGetValue(key, out matchedBoq);
+                        found = typeDict.TryGetValue(key, out matchedBoq!);
                     }
 
                     if (found && matchedBoq != null)
@@ -397,7 +397,7 @@ namespace QicBoqMapper
         private static void SetParameterValue(Element element, string paramName, string value)
         {
             string[] names = GetParameterNameVariants(paramName);
-            Parameter param = null;
+            Parameter? param = null;
 
             // Try lookup on Instance first
             foreach (var name in names)

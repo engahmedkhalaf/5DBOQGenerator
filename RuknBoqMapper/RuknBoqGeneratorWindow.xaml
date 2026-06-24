@@ -1,7 +1,7 @@
-<Window x:Class="QicBoqMapper.QicBoqGeneratorWindow"
+<Window x:Class="RuknBoqMapper.RuknBoqGeneratorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="QIC Tools – 5D BOQ Manager"
+        Title="RUKN Tools 5D BOQ Manager"
         Height="550"
         Width="500"
         MinHeight="500"
@@ -99,7 +99,7 @@
         <!-- Header -->
         <Grid Grid.Row="0" Margin="0,0,0,12">
             <StackPanel>
-                <TextBlock Text="QIC 5D BOQ MANAGER" Foreground="#3B82F6" FontSize="18" FontWeight="Bold"/>
+                <TextBlock Text="RUKN 5D BOQ MANAGER" Foreground="#3B82F6" FontSize="18" FontWeight="Bold"/>
                 <TextBlock Text="Model Metadata Linker" Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,2,0,0"/>
             </StackPanel>
         </Grid>

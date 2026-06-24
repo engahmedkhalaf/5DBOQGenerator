@@ -6,9 +6,9 @@ using System.Text;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
-    public static class QicBoqAuditExporter
+    public static class RuknBoqAuditExporter
     {
         public static void ExportToExcel(string filePath, List<AuditRecord> records)
         {

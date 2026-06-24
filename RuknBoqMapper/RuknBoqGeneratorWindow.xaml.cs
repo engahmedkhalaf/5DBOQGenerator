@@ -1,13 +1,13 @@
 using System;
 using System.Windows;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
-    public partial class QicBoqGeneratorWindow : Window
+    public partial class RuknBoqGeneratorWindow : Window
     {
-        private readonly QicBoqGeneratorViewModel _viewModel;
+        private readonly RuknBoqGeneratorViewModel _viewModel;
 
-        public QicBoqGeneratorWindow(QicBoqGeneratorViewModel viewModel)
+        public RuknBoqGeneratorWindow(RuknBoqGeneratorViewModel viewModel)
         {
             InitializeComponent();
             _viewModel = viewModel;

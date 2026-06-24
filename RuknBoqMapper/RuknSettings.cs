@@ -1,8 +1,8 @@
 using System;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
-    public class QicSettings
+    public class RuknSettings
     {
         public string SeparatorStyle { get; set; } = "Dash"; // Dash, Dot, Underscore
         public string MatchingMethod { get; set; } = "Category + Family + Type"; // Element ID, Category + Family + Type

@@ -1,4 +1,4 @@
-# release.ps1 — one-command release for QIC 5D BOQ Manager.
+# release.ps1 — one-command release for RUKN 5D BOQ Manager.
 #
 # Usage:
 #   .\release.ps1 -Version 1.1.0                            # interactive notes
@@ -7,10 +7,10 @@
 #
 # What it does, in order:
 #   1. Validates version format
-#   2. Updates <Version>, <AssemblyVersion>, <FileVersion> in QicBoqMapper.csproj
-#   3. Updates #define MyAppVersion in QicBoqMapperInstaller.iss
+#   2. Updates <Version>, <AssemblyVersion>, <FileVersion> in RuknBoqMapper.csproj
+#   3. Updates #define MyAppVersion in RuknBoqMapperInstaller.iss
 #   4. dotnet build (Release)
-#   5. ISCC.exe -> compiles Output/QIC_5D_BOQ_Manager_Setup.exe
+#   5. ISCC.exe -> compiles Output/RUKN_5D_BOQ_Manager_Setup.exe
 #   6. git commit + tag v<version>
 #   7. If `gh` CLI is installed: create GitHub release, upload installer, push tag
 #      Otherwise: push tag and open the Releases page in the browser for manual upload
@@ -27,11 +27,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = $PSScriptRoot
-$CsprojPath = Join-Path $ProjectRoot 'QicBoqMapper\QicBoqMapper.csproj'
-$IssPath = Join-Path $ProjectRoot 'QicBoqMapperInstaller.iss'
-$InstallerOutput = Join-Path $ProjectRoot 'Output\QIC_5D_BOQ_Manager_Setup.exe'
+$CsprojPath = Join-Path $ProjectRoot 'RuknBoqMapper\RuknBoqMapper.csproj'
+$IssPath = Join-Path $ProjectRoot 'RuknBoqMapperInstaller.iss'
+$InstallerOutput = Join-Path $ProjectRoot 'Output\RUKN_5D_BOQ_Manager_Setup.exe'
 $IsccPath = 'C:\Program Files\Inno Setup 7\ISCC.exe'
-$GitHubRepo = 'engahmedkhalaf/QIC_5D_BOQ_Manager_Setup'
+$GitHubRepo = 'engahmedkhalaf/RUKN_5D_BOQ_Manager_Setup'
 
 function Write-Step($msg) {
     Write-Host ""

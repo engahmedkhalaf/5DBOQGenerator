@@ -8,17 +8,17 @@ using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Win32;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
     public static class UpdateChecker
     {
         // GitHub repo hosting releases. The installer must be uploaded as a release asset
         // named exactly InstallerAssetName (case-insensitive match).
         private const string GitHubOwner = "engahmedkhalaf";
-        private const string GitHubRepo = "QIC_5D_BOQ_Manager_Setup";
-        private const string InstallerAssetName = "QIC_5D_BOQ_Manager_Setup.exe";
+        private const string GitHubRepo = "RUKN_5D_BOQ_Manager_Setup";
+        private const string InstallerAssetName = "RUKN_5D_BOQ_Manager_Setup.exe";
 
-        private const string RegistryPath = @"Software\QicTools\QicBoqMapper";
+        private const string RegistryPath = @"Software\RuknTools\RuknBoqMapper";
         private const string SkippedVersionValueName = "SkippedUpdateVersion";
 
         // Fire-and-forget. Never throws, never blocks Revit startup.
@@ -39,7 +39,7 @@ namespace QicBoqMapper
             string json;
             using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(8) })
             {
-                client.DefaultRequestHeaders.Add("User-Agent", $"QicBoqMapper/{current}");
+                client.DefaultRequestHeaders.Add("User-Agent", $"RuknBoqMapper/{current}");
                 client.DefaultRequestHeaders.Add("Accept", "application/vnd.github+json");
                 var resp = await client.GetAsync(apiUrl).ConfigureAwait(false);
                 if (!resp.IsSuccessStatusCode) return;
@@ -74,7 +74,7 @@ namespace QicBoqMapper
 
         private static void PromptUser(Version current, Version latest, string downloadUrl, string releaseNotes)
         {
-            string body = $"A new version of QIC 5D BOQ Manager is available.\n\n" +
+            string body = $"A new version of RUKN 5D BOQ Manager is available.\n\n" +
                           $"Installed: {current}\nLatest:    {latest}\n\n" +
                           (string.IsNullOrWhiteSpace(releaseNotes) ? "" : $"Release notes:\n{Truncate(releaseNotes, 600)}\n\n") +
                           "Download the installer now? You'll need to close Revit before running it.";
@@ -103,7 +103,7 @@ namespace QicBoqMapper
                 string tempPath = Path.Combine(Path.GetTempPath(), InstallerAssetName);
                 using (var client = new HttpClient { Timeout = TimeSpan.FromMinutes(5) })
                 {
-                    client.DefaultRequestHeaders.Add("User-Agent", "QicBoqMapper-Updater");
+                    client.DefaultRequestHeaders.Add("User-Agent", "RuknBoqMapper-Updater");
                     var bytes = await client.GetByteArrayAsync(url).ConfigureAwait(false);
                     File.WriteAllBytes(tempPath, bytes);
                 }

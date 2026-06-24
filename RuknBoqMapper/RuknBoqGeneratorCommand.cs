@@ -4,11 +4,11 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
     [Transaction(TransactionMode.Manual)]
     [Regeneration(RegenerationOption.Manual)]
-    public class QicBoqManagerCommand : IExternalCommand
+    public class RuknBoqManagerCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -19,7 +19,7 @@ namespace QicBoqMapper
                     return Result.Cancelled;
                 }
 
-                QicBoqApp.ShowWindow(commandData.Application, null);
+                RuknBoqApp.ShowWindow(commandData.Application, null);
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace QicBoqMapper
                     return Result.Cancelled;
                 }
 
-                QicBoqApp.ShowWindow(commandData.Application, "export");
+                RuknBoqApp.ShowWindow(commandData.Application, "export");
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -67,7 +67,7 @@ namespace QicBoqMapper
                     return Result.Cancelled;
                 }
 
-                QicBoqApp.ShowWindow(commandData.Application, "import");
+                RuknBoqApp.ShowWindow(commandData.Application, "import");
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace QicBoqMapper
                     return Result.Cancelled;
                 }
 
-                QicBoqApp.ShowWindow(commandData.Application, "generate");
+                RuknBoqApp.ShowWindow(commandData.Application, "generate");
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -115,7 +115,7 @@ namespace QicBoqMapper
                     return Result.Cancelled;
                 }
 
-                QicBoqApp.ShowWindow(commandData.Application, "validate");
+                RuknBoqApp.ShowWindow(commandData.Application, "validate");
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -139,7 +139,7 @@ namespace QicBoqMapper
                     return Result.Cancelled;
                 }
 
-                QicBoqApp.ShowWindow(commandData.Application, "audit");
+                RuknBoqApp.ShowWindow(commandData.Application, "audit");
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -163,7 +163,7 @@ namespace QicBoqMapper
                     return Result.Cancelled;
                 }
 
-                QicBoqApp.ShowWindow(commandData.Application, "settings");
+                RuknBoqApp.ShowWindow(commandData.Application, "settings");
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -182,10 +182,7 @@ namespace QicBoqMapper
         {
             try
             {
-                var win = new LicenseWindow();
-                var helper = new System.Windows.Interop.WindowInteropHelper(win);
-                helper.Owner = commandData.Application.MainWindowHandle;
-                win.ShowDialog();
+                RuknBoqApp.ShowLicenseWindow(commandData.Application);
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -204,10 +201,7 @@ namespace QicBoqMapper
         {
             try
             {
-                var win = new AboutWindow();
-                var helper = new System.Windows.Interop.WindowInteropHelper(win);
-                helper.Owner = commandData.Application.MainWindowHandle;
-                win.ShowDialog();
+                RuknBoqApp.ShowLicenseWindow(commandData.Application, "Information");
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -224,7 +218,7 @@ namespace QicBoqMapper
         {
             if (!LicenseManager.IsActivated())
             {
-                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\QicTools\QicBoqMapper"))
+                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\RuknTools\RuknBoqMapper"))
                 {
                     if (key != null)
                     {
@@ -246,9 +240,9 @@ namespace QicBoqMapper
             var win = new LicenseWindow();
             var helper = new System.Windows.Interop.WindowInteropHelper(win);
             helper.Owner = uiApp.MainWindowHandle;
-            bool? result = win.ShowDialog();
+            win.ShowDialog();
 
-            return result == true && LicenseManager.IsActivated();
+            return LicenseManager.IsActivated();
         }
     }
 }

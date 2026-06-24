@@ -9,14 +9,14 @@ using System.Windows.Input;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
-    public class QicBoqGeneratorViewModel : INotifyPropertyChanged
+    public class RuknBoqGeneratorViewModel : INotifyPropertyChanged
     {
         private Document _doc;
         private UIDocument? _uiDoc;
         private readonly ExternalEvent _externalEvent;
-        private readonly QicBoqExternalEventHandler _eventHandler;
+        private readonly RuknBoqExternalEventHandler _eventHandler;
 
         private string _excelFilePath = string.Empty;
         private string _selectionMode = "Entire Model";
@@ -47,7 +47,7 @@ namespace QicBoqMapper
         private List<BoqRecord> _excelRecords = new List<BoqRecord>();
         private List<AuditRecord> _auditRecords = new List<AuditRecord>();
 
-        public QicBoqGeneratorViewModel(Document doc, UIDocument? uiDoc, ExternalEvent externalEvent, QicBoqExternalEventHandler eventHandler)
+        public RuknBoqGeneratorViewModel(Document doc, UIDocument? uiDoc, ExternalEvent externalEvent, RuknBoqExternalEventHandler eventHandler)
         {
             _doc = doc;
             _uiDoc = uiDoc;
@@ -59,16 +59,16 @@ namespace QicBoqMapper
             SeparatorStyles = new ObservableCollection<string> { "- (Dash)", ". (Dot)", "_ (Underscore)", ", (Comma)" };
 
             // Load persisted settings and Excel data
-            _excelFilePath = QicBoqApp.LastExcelFilePath;
-            _excelRecords = QicBoqApp.LastExcelRecords;
-            _selectionMode = QicBoqApp.LastSelectionMode;
-            _matchingMethod = QicBoqApp.LastMatchingMethod;
-            _separatorStyle = QicBoqApp.LastSeparatorStyle;
+            _excelFilePath = RuknBoqApp.LastExcelFilePath;
+            _excelRecords = RuknBoqApp.LastExcelRecords;
+            _selectionMode = RuknBoqApp.LastSelectionMode;
+            _matchingMethod = RuknBoqApp.LastMatchingMethod;
+            _separatorStyle = RuknBoqApp.LastSeparatorStyle;
             if (_separatorStyle == "Dash" || string.IsNullOrEmpty(_separatorStyle)) _separatorStyle = "- (Dash)";
             else if (_separatorStyle == "Dot") _separatorStyle = ". (Dot)";
             else if (_separatorStyle == "Underscore") _separatorStyle = "_ (Underscore)";
             else if (_separatorStyle == "Comma") _separatorStyle = ", (Comma)";
-            _caseInsensitive = QicBoqApp.LastCaseInsensitive;
+            _caseInsensitive = RuknBoqApp.LastCaseInsensitive;
 
             if (_selectionMode == "Current Selection")
             {
@@ -272,21 +272,21 @@ namespace QicBoqMapper
         public string ExcelFilePath
         {
             get => _excelFilePath;
-            set { _excelFilePath = value; QicBoqApp.LastExcelFilePath = value; OnPropertyChanged(nameof(ExcelFilePath)); CommandManager.InvalidateRequerySuggested(); }
+            set { _excelFilePath = value; RuknBoqApp.LastExcelFilePath = value; OnPropertyChanged(nameof(ExcelFilePath)); CommandManager.InvalidateRequerySuggested(); }
         }
 
         public ObservableCollection<string> SelectionModes { get; }
         public string SelectionMode
         {
             get => _selectionMode;
-            set { _selectionMode = value; QicBoqApp.LastSelectionMode = value; OnPropertyChanged(nameof(SelectionMode)); }
+            set { _selectionMode = value; RuknBoqApp.LastSelectionMode = value; OnPropertyChanged(nameof(SelectionMode)); }
         }
 
         public ObservableCollection<string> MatchingMethods { get; }
         public string MatchingMethod
         {
             get => _matchingMethod;
-            set { _matchingMethod = value; QicBoqApp.LastMatchingMethod = value; OnPropertyChanged(nameof(MatchingMethod)); }
+            set { _matchingMethod = value; RuknBoqApp.LastMatchingMethod = value; OnPropertyChanged(nameof(MatchingMethod)); }
         }
 
         public ObservableCollection<CategorySelectionItem> CategoryItems { get; }
@@ -295,13 +295,13 @@ namespace QicBoqMapper
         public string SeparatorStyle
         {
             get => _separatorStyle;
-            set { _separatorStyle = value; QicBoqApp.LastSeparatorStyle = value; OnPropertyChanged(nameof(SeparatorStyle)); }
+            set { _separatorStyle = value; RuknBoqApp.LastSeparatorStyle = value; OnPropertyChanged(nameof(SeparatorStyle)); }
         }
 
         public bool CaseInsensitive
         {
             get => _caseInsensitive;
-            set { _caseInsensitive = value; QicBoqApp.LastCaseInsensitive = value; OnPropertyChanged(nameof(CaseInsensitive)); }
+            set { _caseInsensitive = value; RuknBoqApp.LastCaseInsensitive = value; OnPropertyChanged(nameof(CaseInsensitive)); }
         }
 
         public string StatusText
@@ -402,11 +402,11 @@ namespace QicBoqMapper
             {
                 ProgressValue = 10;
                 StatusText = "Reading Excel file...";
-                _excelRecords = QicBoqExcelService.LoadBoqRecords(ExcelFilePath);
+                _excelRecords = RuknBoqExcelService.LoadBoqRecords(ExcelFilePath);
                 LoadedRecordsCount = _excelRecords.Count;
 
-                QicBoqApp.LastExcelFilePath = ExcelFilePath;
-                QicBoqApp.LastExcelRecords = _excelRecords;
+                RuknBoqApp.LastExcelFilePath = ExcelFilePath;
+                RuknBoqApp.LastExcelRecords = _excelRecords;
 
                 ProgressValue = 100;
                 StatusText = $"Loaded {LoadedRecordsCount} BOQ records successfully.";
@@ -430,7 +430,7 @@ namespace QicBoqMapper
             {
                 Filter = "Excel Workbook (*.xlsx)|*.xlsx",
                 Title = "Save Exported Elements As",
-                FileName = "QIC_BOQ_Exported_Elements",
+                FileName = "RUKN_BOQ_Exported_Elements",
                 OverwritePrompt = false  // silent overwrite of existing file
             };
 
@@ -443,11 +443,11 @@ namespace QicBoqMapper
                         ProgressValue = 20;
                         StatusText = "Collecting Revit elements...";
                         var selectedCats = CategoryItems.Where(c => c.IsSelected).Select(c => c.Name).ToList();
-                        var elements = QicBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats, CategoryFilterText, FamilyFilterText, TypeFilterText);
+                        var elements = RuknBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats, CategoryFilterText, FamilyFilterText, TypeFilterText);
 
                         ProgressValue = 50;
                         StatusText = "Exporting to Excel...";
-                        QicBoqExportService.ExportElements(sfd.FileName, _doc, elements);
+                        RuknBoqExportService.ExportElements(sfd.FileName, _doc, elements);
 
                         ProgressValue = 100;
                         StatusText = "Elements exported successfully.";
@@ -494,12 +494,12 @@ namespace QicBoqMapper
                     ProgressValue = 20;
                     StatusText = "Collecting Revit elements...";
                     var selectedCats = CategoryItems.Where(c => c.IsSelected).Select(c => c.Name).ToList();
-                    var elements = QicBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats, CategoryFilterText, FamilyFilterText, TypeFilterText);
+                    var elements = RuknBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats, CategoryFilterText, FamilyFilterText, TypeFilterText);
 
                     ProgressValue = 50;
                     StatusText = $"Mapping {elements.Count} elements...";
                     int matched, unmatched;
-                    _auditRecords = QicBoqManager.PerformMapping(_doc, elements, _excelRecords, SeparatorStyle, MatchingMethod, CaseInsensitive, out matched, out unmatched);
+                    _auditRecords = RuknBoqManager.PerformMapping(_doc, elements, _excelRecords, SeparatorStyle, MatchingMethod, CaseInsensitive, out matched, out unmatched);
 
                     MatchedTypesCount = matched;
                     UnmatchedTypesCount = unmatched;
@@ -532,8 +532,8 @@ namespace QicBoqMapper
                     win.Owner = activeWin;
                 }
 
-                bool? result = win.ShowDialog();
-                if (result != true || !LicenseManager.IsActivated())
+                win.ShowDialog();
+                if (!LicenseManager.IsActivated())
                 {
                     StatusText = "Activation required to generate 5D BOQ codes.";
                     return;
@@ -547,17 +547,17 @@ namespace QicBoqMapper
                     ProgressValue = 10;
                     StatusText = "Creating shared parameters...";
                     var selectedCats = CategoryItems.Where(c => c.IsSelected).Select(c => c.Name).ToList();
-                    QicBoqManager.CreateSharedParameters(_doc, selectedCats);
+                    RuknBoqManager.CreateSharedParameters(_doc, selectedCats);
 
                     ProgressValue = 30;
                     StatusText = "Gathering and mapping elements...";
-                    var elements = QicBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats, CategoryFilterText, FamilyFilterText, TypeFilterText);
+                    var elements = RuknBoqManager.GetElements(_doc, _uiDoc, SelectionMode, selectedCats, CategoryFilterText, FamilyFilterText, TypeFilterText);
                     int matched, unmatched;
-                    _auditRecords = QicBoqManager.PerformMapping(_doc, elements, _excelRecords, SeparatorStyle, MatchingMethod, CaseInsensitive, out matched, out unmatched);
+                    _auditRecords = RuknBoqManager.PerformMapping(_doc, elements, _excelRecords, SeparatorStyle, MatchingMethod, CaseInsensitive, out matched, out unmatched);
 
                     ProgressValue = 60;
                     StatusText = "Updating parameters...";
-                    QicBoqManager.UpdateParameters(_doc, elements, _auditRecords, _excelRecords, MatchingMethod, CaseInsensitive);
+                    RuknBoqManager.UpdateParameters(_doc, elements, _auditRecords, _excelRecords, MatchingMethod, CaseInsensitive);
 
                     MatchedTypesCount = matched;
                     UnmatchedTypesCount = unmatched;
@@ -596,7 +596,7 @@ namespace QicBoqMapper
             {
                 Filter = "Excel Workbook (*.xlsx)|*.xlsx|CSV UTF-8 (*.csv)|*.csv|JSON File (*.json)|*.json",
                 Title = "Save Audit Report As",
-                FileName = "QIC_BOQ_Audit_Report",
+                FileName = "RUKN_BOQ_Audit_Report",
                 OverwritePrompt = false  // silent overwrite of existing file
             };
 
@@ -605,9 +605,9 @@ namespace QicBoqMapper
                 try
                 {
                     string ext = Path.GetExtension(sfd.FileName).ToLower();
-                    if (ext == ".xlsx") QicBoqAuditExporter.ExportToExcel(sfd.FileName, _auditRecords);
-                    else if (ext == ".csv") QicBoqAuditExporter.ExportToCsv(sfd.FileName, _auditRecords);
-                    else if (ext == ".json") QicBoqAuditExporter.ExportToJson(sfd.FileName, _auditRecords);
+                    if (ext == ".xlsx") RuknBoqAuditExporter.ExportToExcel(sfd.FileName, _auditRecords);
+                    else if (ext == ".csv") RuknBoqAuditExporter.ExportToCsv(sfd.FileName, _auditRecords);
+                    else if (ext == ".json") RuknBoqAuditExporter.ExportToJson(sfd.FileName, _auditRecords);
 
                     StatusText = "Audit report exported successfully.";
                     MessageBox.Show("Audit report saved successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);

@@ -1,0 +1,325 @@
+<Window x:Class="RuknBoqMapper.LicenseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RUKN Tools 5D BOQ Manager" 
+        Height="450" Width="680"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Background="#0F172A"
+        FontFamily="Segoe UI, Inter, Roboto"
+        TextOptions.TextFormattingMode="Display"
+        UseLayoutRounding="True">
+    
+    <Window.Resources>
+        <!-- Sidebar Button Style -->
+        <Style x:Key="SidebarButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,0,0,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="3,0,0,0" BorderBrush="Transparent" SnapsToDevicePixels="True">
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Background" Value="#1E293B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Selected Sidebar Button Style -->
+        <Style x:Key="ActiveSidebarButton" TargetType="Button" BasedOn="{StaticResource SidebarButton}">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="3,0,0,0" BorderBrush="#3B82F6" SnapsToDevicePixels="True">
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Premium Blue Button Style -->
+        <Style x:Key="PremiumButton" TargetType="Button">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Secondary Button Style -->
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PremiumButton}">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="#E2E8F0"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#334155"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#0F172A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/> <!-- Sidebar -->
+            <ColumnDefinition Width="*"/>   <!-- Content Area -->
+        </Grid.ColumnDefinitions>
+
+        <!-- COLUMN 0: SIDEBAR -->
+        <Border Grid.Column="0" Background="#0B0F19" BorderBrush="#1E293B" BorderThickness="0,0,1,0">
+            <Grid Margin="0,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>   <!-- Header Logo/Title -->
+                    <RowDefinition Height="Auto"/>   <!-- Separator -->
+                    <RowDefinition Height="*"/>      <!-- Menu Buttons -->
+                    <RowDefinition Height="Auto"/>   <!-- Footer (About Info) -->
+                </Grid.RowDefinitions>
+
+                <!-- Header Logo/Title -->
+                <StackPanel Grid.Row="0" Margin="15,0,15,10">
+                    <TextBlock Text="RUKNBIM API" Foreground="White" FontSize="16" FontWeight="Bold"/>
+                    <TextBlock Text="Construction Solutions" Foreground="#64748B" FontSize="10" FontWeight="SemiBold" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <!-- Separator -->
+                <Border Grid.Row="1" BorderBrush="#1E293B" BorderThickness="0,0,0,1" Margin="0,5,0,15"/>
+
+                <!-- Menu Buttons -->
+                <StackPanel Grid.Row="2">
+                    <Button x:Name="NavGetLicense" Content="Get License" Click="Tab_Click" Style="{StaticResource SidebarButton}" Margin="0,0,0,2"/>
+                    <Button x:Name="NavActivateLicense" Content="Activate License" Click="Tab_Click" Style="{StaticResource SidebarButton}" Margin="0,0,0,2"/>
+                    <Button x:Name="NavLicenseStatus" Content="License Status" Click="Tab_Click" Style="{StaticResource SidebarButton}" Margin="0,0,0,2"/>
+                    <Button x:Name="NavInformation" Content="Information" Click="Tab_Click" Style="{StaticResource SidebarButton}"/>
+                </StackPanel>
+
+                <!-- Footer (About Info) -->
+                <StackPanel Grid.Row="3" Margin="15,0,15,0">
+                    <Border BorderBrush="#1E293B" BorderThickness="0,0,0,1" Margin="0,0,0,10"/>
+                    <TextBlock Text="About" Foreground="#475569" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="Version: 1.0.0" Foreground="#64748B" FontSize="11" Margin="0,0,0,4"/>
+                    <TextBlock Text="© RUKNBIM API" Foreground="#64748B" FontSize="11"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- COLUMN 1: CONTENT AREA -->
+        <Grid Grid.Column="1" Margin="25">
+            
+            <!-- 1. GET LICENSE PANEL -->
+            <Grid x:Name="GetLicensePanel" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                    <TextBlock Text="GET PRODUCT LICENSE" Foreground="#3B82F6" FontSize="15" FontWeight="Bold"/>
+                    <TextBlock Text="Acquire a license to activate the RUKNBIM API features." Foreground="#94A3B8" FontSize="11" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" MaxWidth="380" HorizontalAlignment="Left">
+                    <TextBlock Text="Select an option below to start your trial or request assistance:" TextWrapping="Wrap" Foreground="#CBD5E1" FontSize="12" LineHeight="18" Margin="0,0,0,15"/>
+                    
+                    <Button Content="Start Free 30-Day Trial" Click="StartTrial_Click" Style="{StaticResource PremiumButton}" Height="34" Margin="0,0,0,15"/>
+                    
+                    <Button Content="Request Activation Code (Email)" Click="RequestCode_Click" Style="{StaticResource SecondaryButton}" Height="34" Margin="0,0,0,15"/>
+
+                    <Button Content="Purchase Subscription License" Click="BuyNow_Click" Style="{StaticResource SecondaryButton}" Height="34" Margin="0,0,0,15"/>
+                    
+                    <TextBlock x:Name="TrialExpiredWarning" Foreground="#F59E0B" FontSize="11" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,5,0,0">
+                        * Your free trial period has expired. Please purchase a full license to continue.
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+
+            <!-- 2. ACTIVATE LICENSE PANEL -->
+            <Grid x:Name="ActivateLicensePanel" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                    <TextBlock Text="ACTIVATE LICENSE" Foreground="#3B82F6" FontSize="15" FontWeight="Bold"/>
+                    <TextBlock Text="Enter your registration email and activation code." Foreground="#94A3B8" FontSize="11" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" MaxWidth="380" HorizontalAlignment="Left">
+                    <StackPanel Margin="0,0,0,12">
+                        <TextBlock Text="Email Address" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                        <TextBox x:Name="EmailTextBox" Height="30" VerticalContentAlignment="Center" Padding="8,0"
+                                 Background="#1E293B" BorderBrush="#334155" BorderThickness="1" Foreground="White" CaretBrush="White"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,0,12">
+                        <TextBlock Text="Activation Code" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                        <TextBox x:Name="CodeTextBox" Height="30" VerticalContentAlignment="Center" Padding="8,0"
+                                 Background="#1E293B" BorderBrush="#334155" BorderThickness="1" Foreground="White" CaretBrush="White"/>
+                    </StackPanel>
+                    
+                    <TextBlock x:Name="StatusLabel" Foreground="#EF4444" FontSize="11" Visibility="Collapsed" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <Grid Grid.Row="2" Margin="0,15,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="Activate" Click="ActivateButton_Click" Style="{StaticResource PremiumButton}" Grid.Column="0" Margin="0,0,10,0"/>
+                    <Button Content="Close" Click="CloseButton_Click" Style="{StaticResource SecondaryButton}" Grid.Column="1"/>
+                </Grid>
+            </Grid>
+
+            <!-- 3. LICENSE STATUS PANEL -->
+            <Grid x:Name="LicenseStatusPanel" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                    <TextBlock Text="LICENSE ENTITLEMENT STATUS" Foreground="#3B82F6" FontSize="15" FontWeight="Bold"/>
+                    <TextBlock Text="Current activation details for this machine." Foreground="#94A3B8" FontSize="11" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" MaxWidth="400" HorizontalAlignment="Left">
+                    <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Status:" Foreground="#94A3B8" FontSize="12" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="StatusTextVal" Grid.Row="0" Grid.Column="1" Text="Activated Successfully" Foreground="#10B981" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Registered Email:" Foreground="#94A3B8" FontSize="12" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="StatusEmailVal" Grid.Row="1" Grid.Column="1" Text="user@example.com" Foreground="White" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Expiration:" Foreground="#94A3B8" FontSize="12"/>
+                            <TextBlock x:Name="StatusExpiryVal" Grid.Row="2" Grid.Column="1" Text="Lifetime License" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+                        </Grid>
+                    </Border>
+                    
+                    <TextBlock Text="To link another license or clean local configuration, you can sign out." Foreground="#94A3B8" FontSize="11" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <Grid Grid.Row="2" Margin="0,15,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="Sign Out" Click="SignOutButton_Click" Style="{StaticResource SecondaryButton}" Grid.Column="0" Margin="0,0,10,0"/>
+                    <Button Content="Close" Click="CloseButton_Click" Style="{StaticResource SecondaryButton}" Grid.Column="1"/>
+                </Grid>
+            </Grid>
+
+            <!-- 4. INFORMATION PANEL (USER REQUESTED TEXT) -->
+            <Grid x:Name="InformationPanel" Visibility="Visible">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,0,10,0">
+                        <TextBlock Text="RUKNBIM API" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,0,0,12"/>
+                        <TextBlock Text="Empowering BIM Automation &amp; Digital Construction" Foreground="#3B82F6" FontSize="12" FontWeight="SemiBold" Margin="0,-6,0,12"/>
+                        
+                        <TextBlock Text="This add-in is licensed and requires a valid license key for activation." Foreground="#E2E8F0" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12"/>
+
+                        <StackPanel Margin="0,0,0,12">
+                            <TextBlock Text="Features:" Foreground="White" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                            <TextBlock Text="• BIM automation tools for Revit and Navisworks" Foreground="#CBD5E1" FontSize="11" Margin="5,0,0,4"/>
+                            <TextBlock Text="• Secure license validation" Foreground="#CBD5E1" FontSize="11" Margin="5,0,0,4"/>
+                            <TextBlock Text="• Automatic update notifications" Foreground="#CBD5E1" FontSize="11" Margin="5,0,0,4"/>
+                            <TextBlock Text="• Professional support and maintenance" Foreground="#CBD5E1" FontSize="11" Margin="5,0,0,4"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,12">
+                            <TextBlock Text="License Information:" Foreground="White" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                            <TextBlock Text="• Each license is assigned to a specific user or organization." Foreground="#CBD5E1" FontSize="11" Margin="5,0,0,4"/>
+                            <TextBlock Text="• Internet access may be required for license verification." Foreground="#CBD5E1" FontSize="11" Margin="5,0,0,4"/>
+                            <TextBlock Text="• Unauthorized distribution or modification is prohibited." Foreground="#CBD5E1" FontSize="11" Margin="5,0,0,4"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,12">
+                            <TextBlock Text="Support:" Foreground="White" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+                            <TextBlock FontSize="11" Margin="5,0,0,4">
+                                <Run Text="Email: " Foreground="#CBD5E1"/>
+                                <Hyperlink NavigateUri="mailto:engkhalaf7@gmail.com" RequestNavigate="Hyperlink_RequestNavigate" Foreground="#3B82F6">engkhalaf7@gmail.com</Hyperlink>
+                            </TextBlock>
+                            <TextBlock FontSize="11" Margin="5,0,0,4">
+                                <Run Text="Website: " Foreground="#CBD5E1"/>
+                                <Hyperlink NavigateUri="https://rukn-bim-website-opka.vercel.app/" RequestNavigate="Hyperlink_RequestNavigate" Foreground="#3B82F6">https://rukn-bim-website-opka.vercel.app/</Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,10,0,0">
+                            <TextBlock Text="Version: 1.0.0" Foreground="#64748B" FontSize="10" Margin="0,0,0,4"/>
+                            <TextBlock Text="© 2026 RUKNBIM API. All Rights Reserved." Foreground="#64748B" FontSize="10"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+            
+        </Grid>
+    </Grid>
+</Window>

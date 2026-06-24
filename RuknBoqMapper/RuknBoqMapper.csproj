@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <AssemblyName>QicBoqMapper</AssemblyName>
-    <RootNamespace>QicBoqMapper</RootNamespace>
+    <AssemblyName>RuknBoqMapper</AssemblyName>
+    <RootNamespace>RuknBoqMapper</RootNamespace>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>9.0</LangVersion>
@@ -42,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="QicBoqMapper.addin" />
+    <None Include="RuknBoqMapper.addin" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -52,12 +52,12 @@
   <Target Name="AutoDeployToRevit" AfterTargets="Build" Condition="'$(DeployOnBuild)' == 'true'">
     <PropertyGroup>
       <RevitAddinsDir>C:\ProgramData\Autodesk\Revit\Addins\2023</RevitAddinsDir>
-      <RevitAddinSubFolder>$(RevitAddinsDir)\QicBoqMapper</RevitAddinSubFolder>
+      <RevitAddinSubFolder>$(RevitAddinsDir)\RuknBoqMapper</RevitAddinSubFolder>
     </PropertyGroup>
     <Message Importance="High" Text="Deploying add-in files to: $(RevitAddinSubFolder)" />
     <MakeDir Directories="$(RevitAddinsDir)" Condition="!Exists('$(RevitAddinsDir)')" />
     <MakeDir Directories="$(RevitAddinSubFolder)" Condition="!Exists('$(RevitAddinSubFolder)')" />
-    <Copy SourceFiles="$(ProjectDir)QicBoqMapper.addin" DestinationFolder="$(RevitAddinsDir)" ContinueOnError="true" />
+    <Copy SourceFiles="$(ProjectDir)RuknBoqMapper.addin" DestinationFolder="$(RevitAddinsDir)" ContinueOnError="true" />
     <ItemGroup>
       <AddinDlls Include="$(OutputPath)*.dll" />
       <AddinPdbs Include="$(OutputPath)*.pdb" />

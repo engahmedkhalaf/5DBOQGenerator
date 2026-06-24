@@ -5,9 +5,9 @@ using System.Linq;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
-    public static class QicBoqManager
+    public static class RuknBoqManager
     {
         public static List<Element> GetElements(Document doc, UIDocument? uiDoc, string selectionMode, List<string> selectedCategoryNames, string categoryFilterText = "", string familyFilterText = "", string typeFilterText = "")
         {
@@ -108,23 +108,23 @@ namespace QicBoqMapper
 
             // Define all required and optional parameters
             string[] paramNames = {
-                "PACKAGE_NO", "BILL_NO", "SYSTEM_CODE", "PAGE_NO", "ITEM_NO", "QIC_5D_BOQ CODE",
+                "PACKAGE_NO", "BILL_NO", "SYSTEM_CODE", "PAGE_NO", "ITEM_NO", "RUKN_5D_BOQ CODE",
                 "DISTRICT_CODE", "ASSET_GROUP", "ASSET_TYPE", "LOCATION_CODE", "DESCRIPTION",
                 "ABS_L1", "ABS_L2", "ABS_L3"
             };
 
             string originalFile = app.SharedParametersFilename;
-            string tempFile = Path.Combine(Path.GetTempPath(), "QicTempSharedParameters.txt");
+            string tempFile = Path.Combine(Path.GetTempPath(), "RuknTempSharedParameters.txt");
 
             try
             {
                 using (StreamWriter sw = File.CreateText(tempFile))
                 {
-                    sw.WriteLine("# QIC 5D BOQ Shared Parameters");
+                    sw.WriteLine("# RUKN 5D BOQ Shared Parameters");
                     sw.WriteLine("*META\tVERSION\tMINVERSION");
                     sw.WriteLine("META\t2\t1");
                     sw.WriteLine("*GROUP\tID\tNAME");
-                    sw.WriteLine("GROUP\t1\tQIC Parameters");
+                    sw.WriteLine("GROUP\t1\tRUKN Parameters");
                     sw.WriteLine("*PARAM\tGUID\tNAME\tDATATYPE\tDATACATEGORY\tGROUP\tVISIBLE\tDESCRIPTION\tUSERMODIFIABLE");
                     
                     // Generate GUIDs systematically
@@ -139,10 +139,10 @@ namespace QicBoqMapper
                 var defFile = app.OpenSharedParameterFile();
                 if (defFile == null) return;
 
-                var group = defFile.Groups.get_Item("QIC Parameters");
+                var group = defFile.Groups.get_Item("RUKN Parameters");
                 if (group == null) return;
 
-                using (var t = new Transaction(doc, "Create QIC Shared Parameters"))
+                using (var t = new Transaction(doc, "Create RUKN Shared Parameters"))
                 {
                     t.Start();
                     var bindingMap = doc.ParameterBindings;
@@ -167,7 +167,7 @@ namespace QicBoqMapper
                         {
                             var binding = app.Create.NewInstanceBinding(categories);
                             BuiltInParameterGroup paramGroup = BuiltInParameterGroup.PG_DATA;
-                            if (pName == "QIC_5D_BOQ CODE")
+                            if (pName == "RUKN_5D_BOQ CODE")
                             {
                                 paramGroup = BuiltInParameterGroup.PG_IDENTITY_DATA;
                             }
@@ -338,7 +338,7 @@ namespace QicBoqMapper
                 .GroupBy(r => $"{r.Category}|{r.FamilyName}|{r.TypeName}", comparer)
                 .ToDictionary(g => g.Key, g => g.First(), comparer);
 
-            using (var t = new Transaction(doc, "QIC 5D BOQ Update"))
+            using (var t = new Transaction(doc, "RUKN 5D BOQ Update"))
             {
                 t.Start();
 
@@ -357,7 +357,7 @@ namespace QicBoqMapper
                     SetParameterValue(element, "SYSTEM_CODE", audit.SystemCode);
                     SetParameterValue(element, "PAGE_NO", audit.PageNo);
                     SetParameterValue(element, "ITEM_NO", audit.ItemNo);
-                    SetParameterValue(element, "QIC_5D_BOQ CODE", audit.GeneratedBoqCode);
+                    SetParameterValue(element, "RUKN_5D_BOQ CODE", audit.GeneratedBoqCode);
 
                     // Lookup matching BoqRecord for optional parameters
                     BoqRecord? matchedBoq = null;

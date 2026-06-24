@@ -4,9 +4,9 @@ using System.IO;
 using Autodesk.Revit.DB;
 using OfficeOpenXml;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
-    public static class QicBoqExportService
+    public static class RuknBoqExportService
     {
         public static void ExportElements(string filePath, Document doc, List<Element> elements)
         {
@@ -18,7 +18,7 @@ namespace QicBoqMapper
                 string[] headers = {
                     "Element ID", "Unique ID", "Category", "Family Name", "Type Name",
                     "Level", "Workset", "Mark", "Package No", "Bill No",
-                    "System Code", "Page No", "Item No", "QIC_5D_BOQ CODE"
+                    "System Code", "Page No", "Item No", "RUKN_5D_BOQ CODE"
                 };
 
                 // Define styling colors based on the Legend
@@ -78,9 +78,9 @@ namespace QicBoqMapper
                     ws.Cells[row, 11].Value = elem.LookupParameter("SYSTEM_CODE")?.AsString() ?? "";
                     ws.Cells[row, 12].Value = elem.LookupParameter("PAGE_NO")?.AsString() ?? "";
                     ws.Cells[row, 13].Value = elem.LookupParameter("ITEM_NO")?.AsString() ?? "";
-                    ws.Cells[row, 14].Value = elem.LookupParameter("QIC_5D_BOQ CODE")?.AsString() ?? "";
+                    ws.Cells[row, 14].Value = elem.LookupParameter("RUKN_5D_BOQ CODE")?.AsString() ?? "";
 
-                    // Set light green (#92D050) background for the QIC_5D_BOQ CODE column (column 14) indicating it's write-locked/read-only
+                    // Set light green (#92D050) background for the RUKN_5D_BOQ CODE column (column 14) indicating it's write-locked/read-only
                     ws.Cells[row, 14].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                     ws.Cells[row, 14].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(146, 208, 80));
 

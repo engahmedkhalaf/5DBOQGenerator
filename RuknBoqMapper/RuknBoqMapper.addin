@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>RUKN 5D BOQ Code Generator</Name>
+    <Assembly>RuknBoqMapper\RuknBoqMapper.dll</Assembly>
+    <AddInId>d6b38c2a-b71a-4e8c-9c31-7d5b7a0f3456</AddInId>
+    <FullClassName>RuknBoqMapper.RuknBoqApp</FullClassName>
+    <VendorId>RUKN</VendorId>
+    <VendorDescription>RUKN BIM Automation Solutions</VendorDescription>
+  </AddIn>
+</RevitAddIns>

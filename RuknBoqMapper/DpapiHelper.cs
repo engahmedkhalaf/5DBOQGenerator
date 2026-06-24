@@ -2,7 +2,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
     // Wraps Windows Data Protection API (DPAPI). Encrypts strings using the
     // CurrentUser scope so a value written by one Windows user cannot be read
@@ -13,7 +13,7 @@ namespace QicBoqMapper
         // Optional per-app entropy. Not a secret, just guards against another
         // process on the same user account accidentally reading our values.
         private static readonly byte[] Entropy =
-            Encoding.UTF8.GetBytes("QicBoqMapper.v1");
+            Encoding.UTF8.GetBytes("RuknBoqMapper.v1");
 
         public static string Protect(string plaintext)
         {

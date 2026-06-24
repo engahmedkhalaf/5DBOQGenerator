@@ -1,6 +1,6 @@
 using System;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
     public class BoqRecord
     {

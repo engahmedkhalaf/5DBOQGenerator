@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Win32;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
     // Produces a stable, hashed identifier for the current Windows machine.
     // Used to lock trial licenses to a single device.
@@ -13,7 +13,7 @@ namespace QicBoqMapper
     // and salted so the raw GUID is never sent over the wire.
     internal static class DeviceFingerprint
     {
-        private const string Salt = "QicBoqMapper.DeviceFingerprint.v1";
+        private const string Salt = "RuknBoqMapper.DeviceFingerprint.v1";
         private static string? _cached;
 
         public static string Get()

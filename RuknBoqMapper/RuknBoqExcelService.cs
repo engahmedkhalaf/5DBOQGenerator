@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using OfficeOpenXml;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
-    public static class QicBoqExcelService
+    public static class RuknBoqExcelService
     {
         public static List<BoqRecord> LoadBoqRecords(string filePath)
         {

@@ -108,120 +108,120 @@ TK_WARNING = "#fbbc04"
 AUTHOR = "Ahmed Khalaf  —  UCC BIM Manager"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# QIC SHARED PARAMETER CATALOGUE  (37 standard params)
+# RUKN SHARED PARAMETER CATALOGUE  (37 standard params)
 # ─────────────────────────────────────────────────────────────────────────────
-QIC_SHARED_PARAMS = [
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000001", "name": "QIC_IDENTITY_CODE", "type": "Text",
+RUKN_SHARED_PARAMS = [
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000001", "name": "RUKN_IDENTITY_CODE", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Unique QIC identity code", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000002", "name": "QIC_ASSET_TAG", "type": "Text", "group": "Identity Data",
+     "desc": "Unique RUKN identity code", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000002", "name": "RUKN_ASSET_TAG", "type": "Text", "group": "Identity Data",
      "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common", "desc": "Physical asset tag / barcode",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000003", "name": "QIC_CLASSIFICATION_CODE", "type": "Text",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000003", "name": "RUKN_CLASSIFICATION_CODE", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "OmniClass / Uniclass code", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000004", "name": "QIC_LOD", "type": "Integer", "group": "Construction",
+     "desc": "OmniClass / Uniclass code", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000004", "name": "RUKN_LOD", "type": "Integer", "group": "Construction",
      "code": "PG_CONSTRUCTION", "mod": True, "vis": True, "disc": "Common", "desc": "Level of Detail 100-500",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000005", "name": "QIC_LOI", "type": "Integer", "group": "Construction",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000005", "name": "RUKN_LOI", "type": "Integer", "group": "Construction",
      "code": "PG_CONSTRUCTION", "mod": True, "vis": True, "disc": "Common", "desc": "Level of Information 1-5",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000006", "name": "QIC_STATUS", "type": "Text", "group": "Identity Data",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000006", "name": "RUKN_STATUS", "type": "Text", "group": "Identity Data",
      "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common", "desc": "Element status",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000007", "name": "QIC_PHASE", "type": "Text", "group": "Phasing",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000007", "name": "RUKN_PHASE", "type": "Text", "group": "Phasing",
      "code": "PG_PHASING", "mod": True, "vis": True, "disc": "Common", "desc": "Construction phase",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000008", "name": "QIC_ZONE", "type": "Text", "group": "Identity Data",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000008", "name": "RUKN_ZONE", "type": "Text", "group": "Identity Data",
      "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common", "desc": "Zone code",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000009", "name": "QIC_SYSTEM", "type": "Text", "group": "Mechanical",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000009", "name": "RUKN_SYSTEM", "type": "Text", "group": "Mechanical",
      "code": "PG_MECHANICAL", "mod": True, "vis": True, "disc": "HVAC", "desc": "System classification",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000010", "name": "QIC_MANUFACTURER", "type": "Text",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000010", "name": "RUKN_MANUFACTURER", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Manufacturer name", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000011", "name": "QIC_MODEL_NUMBER", "type": "Text",
+     "desc": "Manufacturer name", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000011", "name": "RUKN_MODEL_NUMBER", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Model / catalogue number", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000012", "name": "QIC_MATERIAL_GRADE", "type": "Text", "group": "Materials",
+     "desc": "Model / catalogue number", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000012", "name": "RUKN_MATERIAL_GRADE", "type": "Text", "group": "Materials",
      "code": "PG_MATERIALS", "mod": True, "vis": True, "disc": "Structural", "desc": "Material specification grade",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000013", "name": "QIC_FIRE_RATING", "type": "Text",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000013", "name": "RUKN_FIRE_RATING", "type": "Text",
      "group": "Fire Protection", "code": "PG_FIRE_PROTECTION", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Fire resistance rating", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000014", "name": "QIC_ACOUSTIC_RATING", "type": "Number",
+     "desc": "Fire resistance rating", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000014", "name": "RUKN_ACOUSTIC_RATING", "type": "Number",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Sound transmission class dB", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000015", "name": "QIC_THERMAL_VALUE", "type": "Number", "group": "Thermal",
+     "desc": "Sound transmission class dB", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000015", "name": "RUKN_THERMAL_VALUE", "type": "Number", "group": "Thermal",
      "code": "PG_THERMAL", "mod": True, "vis": True, "disc": "Energy", "desc": "U-value / R-value",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000016", "name": "QIC_COST_CODE", "type": "Text", "group": "Construction",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000016", "name": "RUKN_COST_CODE", "type": "Text", "group": "Construction",
      "code": "PG_CONSTRUCTION", "mod": True, "vis": True, "disc": "Common", "desc": "Cost centre / BOQ code",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000017", "name": "QIC_WARRANTY_PERIOD", "type": "Integer",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000017", "name": "RUKN_WARRANTY_PERIOD", "type": "Integer",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Warranty period months", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000018", "name": "QIC_MAINTENANCE_CYCLE", "type": "Text",
+     "desc": "Warranty period months", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000018", "name": "RUKN_MAINTENANCE_CYCLE", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Maintenance frequency", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000019", "name": "QIC_INSTALL_DATE", "type": "Text",
+     "desc": "Maintenance frequency", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000019", "name": "RUKN_INSTALL_DATE", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Installation date YYYY-MM-DD", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000020", "name": "QIC_SPATIAL_LOCATION", "type": "Text",
+     "desc": "Installation date YYYY-MM-DD", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000020", "name": "RUKN_SPATIAL_LOCATION", "type": "Text",
      "group": "Constraints", "code": "PG_CONSTRAINTS", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Spatial / room location ref", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000021", "name": "QIC_DRAWING_REF", "type": "Text",
+     "desc": "Spatial / room location ref", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000021", "name": "RUKN_DRAWING_REF", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Originating drawing number", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000022", "name": "QIC_SPEC_SECTION", "type": "Text",
+     "desc": "Originating drawing number", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000022", "name": "RUKN_SPEC_SECTION", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Specification section ref", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000023", "name": "QIC_DOCUMENT_REF", "type": "Text",
+     "desc": "Specification section ref", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000023", "name": "RUKN_DOCUMENT_REF", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Related document reference", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000024", "name": "QIC_SUBMITTAL_REF", "type": "Text",
+     "desc": "Related document reference", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000024", "name": "RUKN_SUBMITTAL_REF", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Submittal / RFI reference", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000025", "name": "QIC_INSPECTION_STATUS", "type": "Text",
+     "desc": "Submittal / RFI reference", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000025", "name": "RUKN_INSPECTION_STATUS", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "QA inspection status", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000026", "name": "QIC_HANDOVER_STATUS", "type": "Text",
+     "desc": "QA inspection status", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000026", "name": "RUKN_HANDOVER_STATUS", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "O&M handover status", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000027", "name": "QIC_CONTRACTOR", "type": "Text", "group": "Identity Data",
+     "desc": "O&M handover status", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000027", "name": "RUKN_CONTRACTOR", "type": "Text", "group": "Identity Data",
      "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common", "desc": "Installing contractor",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000028", "name": "QIC_SUBCONTRACTOR", "type": "Text",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000028", "name": "RUKN_SUBCONTRACTOR", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Sub-contractor name", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000029", "name": "QIC_SUPPLIER", "type": "Text", "group": "Identity Data",
+     "desc": "Sub-contractor name", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000029", "name": "RUKN_SUPPLIER", "type": "Text", "group": "Identity Data",
      "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common", "desc": "Material supplier name",
-     "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000030", "name": "QIC_COUNTRY_OF_ORIGIN", "type": "Text",
+     "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000030", "name": "RUKN_COUNTRY_OF_ORIGIN", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Country of manufacture", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000031", "name": "QIC_LEED_CREDIT", "type": "Text",
+     "desc": "Country of manufacture", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000031", "name": "RUKN_LEED_CREDIT", "type": "Text",
      "group": "Green Building", "code": "PG_GREEN_BUILDING", "mod": True, "vis": True, "disc": "Energy",
-     "desc": "LEED credit contribution", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000032", "name": "QIC_RECYCLED_CONTENT", "type": "Number",
+     "desc": "LEED credit contribution", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000032", "name": "RUKN_RECYCLED_CONTENT", "type": "Number",
      "group": "Green Building", "code": "PG_GREEN_BUILDING", "mod": True, "vis": True, "disc": "Energy",
-     "desc": "Recycled content percentage", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000033", "name": "QIC_STRUCTURAL_GRADE", "type": "Text",
+     "desc": "Recycled content percentage", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000033", "name": "RUKN_STRUCTURAL_GRADE", "type": "Text",
      "group": "Structural", "code": "PG_STRUCTURAL", "mod": True, "vis": True, "disc": "Structural",
-     "desc": "Structural design grade", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000034", "name": "QIC_LOAD_CAPACITY", "type": "Number",
+     "desc": "Structural design grade", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000034", "name": "RUKN_LOAD_CAPACITY", "type": "Number",
      "group": "Structural", "code": "PG_STRUCTURAL", "mod": True, "vis": True, "disc": "Structural",
-     "desc": "Design load capacity kN", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000035", "name": "QIC_SERVICE_LIFE", "type": "Integer",
+     "desc": "Design load capacity kN", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000035", "name": "RUKN_SERVICE_LIFE", "type": "Integer",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "Design service life years", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000036", "name": "QIC_NATIONAL_ANNEX", "type": "Text",
+     "desc": "Design service life years", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000036", "name": "RUKN_NATIONAL_ANNEX", "type": "Text",
      "group": "Identity Data", "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common",
-     "desc": "National annex reference", "source": "QIC BIM Standard v3"},
-    {"guid": "a1b2c3d4-0001-0000-0000-000000000037", "name": "QIC_NOTES", "type": "Text", "group": "Identity Data",
+     "desc": "National annex reference", "source": "RUKN BIM Standard v3"},
+    {"guid": "a1b2c3d4-0001-0000-0000-000000000037", "name": "RUKN_NOTES", "type": "Text", "group": "Identity Data",
      "code": "PG_IDENTITY_DATA", "mod": True, "vis": True, "disc": "Common", "desc": "Free-text notes / remarks",
-     "source": "QIC BIM Standard v3"},
+     "source": "RUKN BIM Standard v3"},
 ]
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1186,7 +1186,7 @@ class RVTParser:
         # Setup lookup caches to avoid database queries & parameter search overhead
         type_cache = {}          # type_id -> (family_name, elem_type)
         level_cache = {}         # level_id -> level_name
-        qic_param_cache = {}     # mapped_cat -> list of present QIC parameter names
+        rukn_param_cache = {}     # mapped_cat -> list of present RUKN parameter names
         extra_cols_cache = {}    # mapped_cat -> list of (col, clean_col) present in category
         qty_cache = {}           # type_id -> (instance_qty_names, type_qty_names)
 
@@ -1272,16 +1272,16 @@ class RVTParser:
                         "Level": level_name,
                     }
 
-                    # 3. Extract QIC shared parameters (Scan once per Category)
-                    if mapped_cat not in qic_param_cache:
-                        present_qic = []
-                        for sp in QIC_SHARED_PARAMS:
+                    # 3. Extract RUKN shared parameters (Scan once per Category)
+                    if mapped_cat not in rukn_param_cache:
+                        present_rukn = []
+                        for sp in RUKN_SHARED_PARAMS:
                             param_name = sp["name"]
                             if elem.LookupParameter(param_name) is not None:
-                                present_qic.append(param_name)
-                        qic_param_cache[mapped_cat] = present_qic
+                                present_rukn.append(param_name)
+                        rukn_param_cache[mapped_cat] = present_rukn
 
-                    for param_name in qic_param_cache[mapped_cat]:
+                    for param_name in rukn_param_cache[mapped_cat]:
                         p_obj = elem.LookupParameter(param_name)
                         if p_obj and p_obj.HasValue:
                             if p_obj.StorageType == StorageType.String:
@@ -1728,7 +1728,7 @@ def _write_shared_params(wb):
 
     # Big title (merged, row 1)
     title = ws["A1"]
-    title.value = "SharedParameterElement Catalogue  \u2014  QIC (Quality \u00b7 Identity \u00b7 Classification)"
+    title.value = "SharedParameterElement Catalogue  \u2014  RUKN (Quality \u00b7 Identity \u00b7 Classification)"
     title.font = Font(name="Arial", bold=True, size=13, color=C_BLUE_DARK)
     title.fill = _fill(C_BLUE_LIGHT)
     title.alignment = _align(h="left", v="center")
@@ -1741,7 +1741,7 @@ def _write_shared_params(wb):
     _write_header_row(ws, sub_cols, row=2)
 
     # Data rows
-    for r, sp in enumerate(QIC_SHARED_PARAMS, 3):
+    for r, sp in enumerate(RUKN_SHARED_PARAMS, 3):
         alt = ((r - 3) % 2 == 0)
         bg = C_ROW_ALT if alt else C_ROW_PLAIN
         vals = [
@@ -1778,7 +1778,7 @@ def _write_family_sp_bindings(wb, model_data: dict):
 
     cats = model_data.get("categories", {})
     r_idx = 3
-    sp_by_name = {sp["name"]: sp for sp in QIC_SHARED_PARAMS}
+    sp_by_name = {sp["name"]: sp for sp in RUKN_SHARED_PARAMS}
 
     seen_families: set = set()
     for cat, rows in cats.items():
@@ -2082,7 +2082,7 @@ def export_ifc(output_path: str, model_data: dict):
     lines = [
         "ISO-10303-21;",
         "HEADER;",
-        f"FILE_DESCRIPTION(('BIM Data Export — QIC System v10'),\n  '2;1');",
+        f"FILE_DESCRIPTION(('BIM Data Export — RUKN System v10'),\n  '2;1');",
         f"FILE_NAME('{output_path}','{now}',('{AUTHOR}'),('UCC'),'','','');",
         "FILE_SCHEMA(('IFC2X3'));",
         "ENDSEC;",

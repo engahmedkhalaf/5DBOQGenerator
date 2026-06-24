@@ -12,7 +12,7 @@ CREATE TABLE public.licenses (
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'expired')),
     expires_at TIMESTAMP WITH TIME ZONE NULL, -- NULL means lifetime license
     is_trial BOOLEAN NOT NULL DEFAULT false,
-    product TEXT NULL, -- Slug of the product this license activates (e.g., kh_element_navigator, qic_5d_boq). NULL means unassigned.
+    product TEXT NULL, -- Slug of the product this license activates (e.g., kh_element_navigator, rukn_5d_boq). NULL means unassigned.
     device_id TEXT NULL, -- For trials: hashed machine fingerprint of the device the trial is locked to. NULL for paid licenses or unbound trials.
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL

@@ -5,16 +5,17 @@ using System.Reflection;
 using System.Windows.Media.Imaging;
 using Autodesk.Revit.UI;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
-    public class QicBoqApp : IExternalApplication
+    public class RuknBoqApp : IExternalApplication
     {
-        private const string TabName = "QIC Tools";
+        private const string TabName = "RUKN Tools";
         private const string PanelName = "5D BOQ Management";
 
-        private static QicBoqGeneratorWindow? _mainWindow = null;
-        private static QicBoqExternalEventHandler? _eventHandler = null;
+        private static RuknBoqGeneratorWindow? _mainWindow = null;
+        private static RuknBoqExternalEventHandler? _eventHandler = null;
         private static ExternalEvent? _externalEvent = null;
+        private static LicenseWindow? _licenseWindow = null;
 
         public static string LastExcelFilePath { get; set; } = string.Empty;
         public static List<BoqRecord> LastExcelRecords { get; set; } = new List<BoqRecord>();
@@ -29,7 +30,7 @@ namespace QicBoqMapper
             application.Idling += OnIdling;
             try
             {
-                _eventHandler = new QicBoqExternalEventHandler();
+                _eventHandler = new RuknBoqExternalEventHandler();
                 _externalEvent = ExternalEvent.Create(_eventHandler);
 
                 try { application.CreateRibbonTab(TabName); } catch { }
@@ -37,9 +38,8 @@ namespace QicBoqMapper
                 var panel = application.CreateRibbonPanel(TabName, PanelName);
                 string asmPath = Assembly.GetExecutingAssembly().Location;
 
-                panel.AddItem(CreateButton(asmPath, "QicBoqManager", "QIC 5D BOQ\nManager", "QicBoqMapper.QicBoqManagerCommand", "Open the QIC 5D BOQ Manager workflow window."));
-                panel.AddItem(CreateButton(asmPath, "License", "License", "QicBoqMapper.LicenseCommand", "Activate your product license."));
-                panel.AddItem(CreateButton(asmPath, "About", "About", "QicBoqMapper.AboutCommand", "View add-in version and support details."));
+                panel.AddItem(CreateButton(asmPath, "RuknBoqManager", "RUKN 5D BOQ\nManager", "RuknBoqMapper.RuknBoqManagerCommand", "Open the RUKN 5D BOQ Manager workflow window."));
+                panel.AddItem(CreateButton(asmPath, "License", "License", "RuknBoqMapper.LicenseCommand", "Activate your product license."));
 
                 UpdateChecker.CheckAsync();
 
@@ -55,7 +55,7 @@ namespace QicBoqMapper
             }
             catch (Exception ex)
             {
-                TaskDialog.Show("QIC Tools Startup Error", ex.Message);
+                TaskDialog.Show("RUKN Tools Startup Error", ex.Message);
                 return Result.Failed;
             }
         }
@@ -80,7 +80,7 @@ namespace QicBoqMapper
                 var activeUiDoc = uiApp?.ActiveUIDocument;
                 if (activeUiDoc != null)
                 {
-                    var vm = _mainWindow.DataContext as QicBoqGeneratorViewModel;
+                    var vm = _mainWindow.DataContext as RuknBoqGeneratorViewModel;
                     vm?.UpdateActiveDocument(activeUiDoc.Document, activeUiDoc);
                 }
             }
@@ -94,13 +94,13 @@ namespace QicBoqMapper
                 var doc = uiDoc?.Document;
                 if (doc == null)
                 {
-                    TaskDialog.Show("QIC Tools", "No active document.");
+                    TaskDialog.Show("RUKN Tools", "No active document.");
                     return;
                 }
 
                 if (_mainWindow != null && _mainWindow.IsLoaded)
                 {
-                    var vm = _mainWindow.DataContext as QicBoqGeneratorViewModel;
+                    var vm = _mainWindow.DataContext as RuknBoqGeneratorViewModel;
                     if (vm != null)
                     {
                         vm.UpdateActiveDocument(doc, uiDoc);
@@ -119,12 +119,12 @@ namespace QicBoqMapper
 
                 if (_externalEvent == null || _eventHandler == null)
                 {
-                    _eventHandler = new QicBoqExternalEventHandler();
+                    _eventHandler = new RuknBoqExternalEventHandler();
                     _externalEvent = ExternalEvent.Create(_eventHandler);
                 }
 
-                var viewModel = new QicBoqGeneratorViewModel(doc, uiDoc, _externalEvent, _eventHandler);
-                _mainWindow = new QicBoqGeneratorWindow(viewModel);
+                var viewModel = new RuknBoqGeneratorViewModel(doc, uiDoc, _externalEvent, _eventHandler);
+                _mainWindow = new RuknBoqGeneratorWindow(viewModel);
 
                 var helper = new System.Windows.Interop.WindowInteropHelper(_mainWindow);
                 helper.Owner = uiApp.MainWindowHandle;
@@ -139,7 +139,37 @@ namespace QicBoqMapper
             }
             catch (Exception ex)
             {
-                TaskDialog.Show("QIC Tools Error", $"Failed to open window:\n{ex.Message}");
+                TaskDialog.Show("RUKN Tools Error", $"Failed to open window:\n{ex.Message}");
+            }
+        }
+
+        public static void ShowLicenseWindow(UIApplication uiApp, string? startingTab = null)
+        {
+            try
+            {
+                if (_licenseWindow != null && _licenseWindow.IsLoaded)
+                {
+                    if (!string.IsNullOrEmpty(startingTab))
+                    {
+                        _licenseWindow.SelectTab(startingTab!);
+                    }
+                    _licenseWindow.Activate();
+                    if (_licenseWindow.WindowState == System.Windows.WindowState.Minimized)
+                    {
+                        _licenseWindow.WindowState = System.Windows.WindowState.Normal;
+                    }
+                    return;
+                }
+
+                _licenseWindow = new LicenseWindow(startingTab);
+                var helper = new System.Windows.Interop.WindowInteropHelper(_licenseWindow);
+                helper.Owner = uiApp.MainWindowHandle;
+                _licenseWindow.Closed += (s, e) => _licenseWindow = null;
+                _licenseWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                TaskDialog.Show("RUKN Tools Error", $"Failed to open license window:\n{ex.Message}");
             }
         }
 
@@ -160,8 +190,8 @@ namespace QicBoqMapper
             string icon16 = Path.Combine(dir, "Resources", baseName + "_16.png");
 
             // Fallback icons if specific files don't exist
-            if (!File.Exists(icon32)) icon32 = Path.Combine(dir, "Resources", "QicBoqManager_32.png");
-            if (!File.Exists(icon16)) icon16 = Path.Combine(dir, "Resources", "QicBoqManager_16.png");
+            if (!File.Exists(icon32)) icon32 = Path.Combine(dir, "Resources", "RuknBoqManager_32.png");
+            if (!File.Exists(icon16)) icon16 = Path.Combine(dir, "Resources", "RuknBoqManager_16.png");
 
             if (File.Exists(icon32))
                 btn.LargeImage = new BitmapImage(new Uri(icon32, UriKind.Absolute));

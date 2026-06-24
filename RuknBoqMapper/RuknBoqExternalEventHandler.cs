@@ -2,9 +2,9 @@ using System;
 using System.Collections.Concurrent;
 using Autodesk.Revit.UI;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
-    public class QicBoqExternalEventHandler : IExternalEventHandler
+    public class RuknBoqExternalEventHandler : IExternalEventHandler
     {
         private readonly ConcurrentQueue<Action<UIApplication>> _actions = new ConcurrentQueue<Action<UIApplication>>();
 
@@ -30,7 +30,7 @@ namespace QicBoqMapper
 
         public string GetName()
         {
-            return "QIC BOQ Modeless Event Handler";
+            return "RUKN BOQ Modeless Event Handler";
         }
     }
 }

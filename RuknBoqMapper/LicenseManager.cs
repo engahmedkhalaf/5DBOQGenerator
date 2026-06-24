@@ -5,11 +5,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
     public static class LicenseManager
     {
-        private const string RegistryPath = @"Software\QicTools\QicBoqMapper";
+        private const string RegistryPath = @"Software\RuknTools\RuknBoqMapper";
 
         // Non-secret: stored as-is for display.
         private const string EmailValueName = "Email";

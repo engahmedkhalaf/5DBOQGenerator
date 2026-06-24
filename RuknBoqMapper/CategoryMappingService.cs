@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Autodesk.Revit.DB;
 
-namespace QicBoqMapper
+namespace RuknBoqMapper
 {
     public static class CategoryMappingService
     {

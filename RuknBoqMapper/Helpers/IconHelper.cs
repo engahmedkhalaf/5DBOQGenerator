@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Media.Imaging;
 
-namespace QicBoqMapper.Helpers
+namespace RuknBoqMapper.Helpers
 {
     public static class IconHelper
     {

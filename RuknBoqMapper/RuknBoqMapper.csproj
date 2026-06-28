@@ -69,4 +69,9 @@
     </ItemGroup>
     <Copy SourceFiles="@(ResourceFiles)" DestinationFolder="$(RevitAddinSubFolder)\Resources" ContinueOnError="true" />
   </Target>
+
+  <Target Name="KillRevitOnRebuild" BeforeTargets="BeforeRebuild">
+    <Message Text="Killing Revit process to release file locks for rebuild..." Importance="high" />
+    <Exec Command="taskkill /f /im Revit.exe &gt;nul 2&gt;nul" IgnoreExitCode="true" />
+  </Target>
 </Project>

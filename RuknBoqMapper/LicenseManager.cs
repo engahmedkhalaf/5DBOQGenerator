@@ -25,13 +25,18 @@ namespace RuknBoqMapper
         // one-shot re-encryption migration, then deleted.
         private const string LegacyCodeValueName = "ActivationCode";
 
-        // Supabase configuration
-        private const string SupabaseUrl = "https://auvtapbsdewwmzejchgq.supabase.co";
-        private const string SupabaseAnonKey = "sb_publishable_LUcQW4gZYVFYGsNY-p-n0A_LSr2N4RH";
+        // CONFIGURATION: Supabase credentials.
+        // =====================================================================
+        private const string SupabaseUrl = "https://dfkcnyzuiquvozvncwph.supabase.co";
+        private const string SupabaseAnonKey = "sb_publishable_zhW-Ox8_ssRAZKkGkBbsog_1juWTr1X";
+        // =====================================================================
 
         // --------------- State queries ---------------
 
-        public static bool IsActivated()
+        private const string TrialRegistryPath = @"Software\RuknTools\RuknBoqMapper\Trial";
+        private const string TrialStartDateValueName = "TrialStartDate";
+
+        public static bool IsFullyActivated()
         {
             try
             {
@@ -55,6 +60,64 @@ namespace RuknBoqMapper
                 }
             }
             catch { return false; }
+        }
+
+        public static bool IsActivated()
+        {
+            return IsFullyActivated() || GetTrialRemainingDays() > 0;
+        }
+
+        public static double GetTrialRemainingDays()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(TrialRegistryPath))
+                {
+                    if (key == null) return 0;
+                    string? startStr = key.GetValue(TrialStartDateValueName)?.ToString();
+                    if (string.IsNullOrEmpty(startStr) || !DateTime.TryParse(startStr, out DateTime startDate))
+                    {
+                        return 0;
+                    }
+
+                    double elapsed = (DateTime.UtcNow - startDate.ToUniversalTime()).TotalDays;
+                    if (elapsed < 0) elapsed = 0;
+
+                    double remaining = 7.0 - elapsed;
+                    return remaining > 0 ? remaining : 0;
+                }
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static bool IsLocalTrialActive()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(TrialRegistryPath))
+                {
+                    return key != null && !string.IsNullOrEmpty(key.GetValue(TrialStartDateValueName)?.ToString());
+                }
+            }
+            catch { return false; }
+        }
+
+        public static void StartLocalTrial()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.CreateSubKey(TrialRegistryPath))
+                {
+                    if (key != null)
+                    {
+                        key.SetValue(TrialStartDateValueName, DateTime.UtcNow.ToString("o"));
+                    }
+                }
+            }
+            catch { }
         }
 
         public static bool IsExpired()
@@ -123,6 +186,11 @@ namespace RuknBoqMapper
                         try { key.DeleteValue(name, false); } catch { }
                     // Email left in place so the form pre-fills next time.
                 }
+                try
+                {
+                    Registry.CurrentUser.DeleteSubKeyTree(TrialRegistryPath, false);
+                }
+                catch { }
             }
             catch { }
         }

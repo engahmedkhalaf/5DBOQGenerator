@@ -18,7 +18,7 @@ namespace RuknBoqMapper
                 string[] headers = {
                     "Element ID", "Unique ID", "Category", "Family Name", "Type Name",
                     "Level", "Workset", "Mark", "Package No", "Bill No",
-                    "System Code", "Page No", "Item No", "RUKN_5D_BOQ CODE"
+                    "System Code", "Page No", "Item No", "QIC_5D_BOQ_CODE"
                 };
 
                 // Define styling colors based on the Legend
@@ -78,44 +78,18 @@ namespace RuknBoqMapper
                     ws.Cells[row, 11].Value = elem.LookupParameter("SYSTEM_CODE")?.AsString() ?? "";
                     ws.Cells[row, 12].Value = elem.LookupParameter("PAGE_NO")?.AsString() ?? "";
                     ws.Cells[row, 13].Value = elem.LookupParameter("ITEM_NO")?.AsString() ?? "";
-                    ws.Cells[row, 14].Value = elem.LookupParameter("RUKN_5D_BOQ CODE")?.AsString() ?? "";
+                    ws.Cells[row, 14].Value = elem.LookupParameter("QIC_5D_BOQ_CODE")?.AsString() ?? "";
 
-                    // Set light green (#92D050) background for the RUKN_5D_BOQ CODE column (column 14) indicating it's write-locked/read-only
+                    // Set light green (#92D050) background for the QIC_5D_BOQ_CODE column (column 14) indicating it's write-locked/read-only
                     ws.Cells[row, 14].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                     ws.Cells[row, 14].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(146, 208, 80));
 
                     row++;
                 }
 
-                var wsMap = package.Workbook.Worksheets.Add("BOQ Mapping");
-                string[] mapHeaders = {
-                    "Category", "Family Name", "Type Name", "Package No", "Bill No", "System Code", "Page No", "Item No",
-                    "District Code", "Asset Group", "Asset Type", "Location Code", "Description", "ABS L1", "ABS L2", "ABS L3"
-                };
-
-                // Apply styling to 'BOQ Mapping' Headers
-                wsMap.Row(1).Height = 24;
-                for (int i = 0; i < mapHeaders.Length; i++)
-                {
-                    var cell = wsMap.Cells[1, i + 1];
-                    cell.Value = mapHeaders[i];
-                    cell.Style.Font.Bold = true;
-                    cell.Style.Font.Color.SetColor(System.Drawing.Color.White);
-                    cell.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    cell.Style.Fill.BackgroundColor.SetColor(colTitleColor);
-                    cell.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    cell.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                }
-
-
-
                 for (int i = 1; i <= headers.Length; i++)
                 {
                     ws.Column(i).Width = 18;
-                }
-                for (int i = 1; i <= mapHeaders.Length; i++)
-                {
-                    wsMap.Column(i).Width = 18;
                 }
 
                 // Add Color Legend Worksheet
@@ -191,16 +165,42 @@ namespace RuknBoqMapper
 
                 // Add Developer Credit Info
                 int creditStartRow = legendItems.Count + 5;
+                
+                // Line 1: Add-in Prepared by: Ahmed Khalaf - BIM Manager
                 wsLegend.Cells[creditStartRow, 1, creditStartRow, 2].Merge = true;
                 wsLegend.Cells[creditStartRow, 1].Value = "Add-in Prepared by: Ahmed Khalaf - BIM Manager";
                 wsLegend.Cells[creditStartRow, 1].Style.Font.Bold = true;
                 wsLegend.Cells[creditStartRow, 1].Style.Font.Size = 11;
                 wsLegend.Cells[creditStartRow, 1].Style.Font.Color.SetColor(System.Drawing.Color.Black);
 
+                // Line 2: Add-in Prepared by: RUKN BIM
                 wsLegend.Cells[creditStartRow + 1, 1, creditStartRow + 1, 2].Merge = true;
-                wsLegend.Cells[creditStartRow + 1, 1].Value = "Phone: 0542554127 | Email: engkhalaf7@gmail.com";
-                wsLegend.Cells[creditStartRow + 1, 1].Style.Font.Italic = true;
-                wsLegend.Cells[creditStartRow + 1, 1].Style.Font.Size = 10;
+                wsLegend.Cells[creditStartRow + 1, 1].Value = "Add-in Prepared by: RUKN BIM";
+                wsLegend.Cells[creditStartRow + 1, 1].Style.Font.Bold = true;
+                wsLegend.Cells[creditStartRow + 1, 1].Style.Font.Size = 11;
+                wsLegend.Cells[creditStartRow + 1, 1].Style.Font.Color.SetColor(System.Drawing.Color.Black);
+
+                // Line 3: Website: www.ruknbim.com
+                wsLegend.Cells[creditStartRow + 2, 1, creditStartRow + 2, 2].Merge = true;
+                wsLegend.Cells[creditStartRow + 2, 1].Value = "Website: www.ruknbim.com";
+                wsLegend.Cells[creditStartRow + 2, 1].Style.Font.Size = 11;
+                wsLegend.Cells[creditStartRow + 2, 1].Style.Font.Color.SetColor(System.Drawing.Color.FromArgb(5, 99, 193)); // blue hyperlink
+                wsLegend.Cells[creditStartRow + 2, 1].Style.Font.UnderLine = true;
+                try { wsLegend.Cells[creditStartRow + 2, 1].Hyperlink = new Uri("http://www.ruknbim.com"); } catch { }
+
+                // Line 4: Email: info@ruknbim.com
+                wsLegend.Cells[creditStartRow + 3, 1, creditStartRow + 3, 2].Merge = true;
+                wsLegend.Cells[creditStartRow + 3, 1].Value = "Email: info@ruknbim.com";
+                wsLegend.Cells[creditStartRow + 3, 1].Style.Font.Size = 11;
+                wsLegend.Cells[creditStartRow + 3, 1].Style.Font.Color.SetColor(System.Drawing.Color.FromArgb(5, 99, 193)); // blue hyperlink
+                wsLegend.Cells[creditStartRow + 3, 1].Style.Font.UnderLine = true;
+                try { wsLegend.Cells[creditStartRow + 3, 1].Hyperlink = new Uri("mailto:info@ruknbim.com"); } catch { }
+
+                // Line 5: Phone: 0542554127 | Email: engkhalaf7@gmail.com
+                wsLegend.Cells[creditStartRow + 4, 1, creditStartRow + 4, 2].Merge = true;
+                wsLegend.Cells[creditStartRow + 4, 1].Value = "Phone: 0542554127 | Email: engkhalaf7@gmail.com";
+                wsLegend.Cells[creditStartRow + 4, 1].Style.Font.Italic = true;
+                wsLegend.Cells[creditStartRow + 4, 1].Style.Font.Size = 10;
 
                 package.SaveAs(new FileInfo(filePath));
             }

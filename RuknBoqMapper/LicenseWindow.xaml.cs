@@ -36,16 +36,15 @@ namespace RuknBoqMapper
 
         private void UpdateStatusDetails()
         {
-            bool isActivated = LicenseManager.IsActivated();
-            bool isExpired = LicenseManager.IsExpired();
+            bool fullyActivated = LicenseManager.IsFullyActivated();
+            double trialRemaining = LicenseManager.GetTrialRemainingDays();
 
-            if (isActivated)
+            if (fullyActivated)
             {
-                StatusTextVal.Text = "Active";
+                StatusTextVal.Text = "Active / Licensed";
                 StatusTextVal.Foreground = Brushes.LightGreen;
                 StatusEmailVal.Text = LicenseManager.GetSavedEmail();
 
-                // Read expiration date if any
                 using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\RuknTools\RuknBoqMapper"))
                 {
                     object? expiresAtVal = key?.GetValue("ExpiresAt");
@@ -56,22 +55,48 @@ namespace RuknBoqMapper
                 StatusLabel.Foreground = Brushes.LightGreen;
                 StatusLabel.Visibility = Visibility.Visible;
                 TrialExpiredWarning.Visibility = Visibility.Collapsed;
+                BtnSignOut.Visibility = Visibility.Visible;
+                BtnStartTrial.Visibility = Visibility.Collapsed;
+            }
+            else if (trialRemaining > 0)
+            {
+                StatusTextVal.Text = $"Trial ({trialRemaining:F1} Days Remaining)";
+                StatusTextVal.Foreground = Brushes.LightBlue;
+                StatusEmailVal.Text = "Trial User";
+                
+                DateTime trialEndDate = DateTime.UtcNow.AddDays(trialRemaining);
+                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\RuknTools\RuknBoqMapper\Trial"))
+                {
+                    object? startStr = key?.GetValue("TrialStartDate");
+                    if (startStr != null && DateTime.TryParse(startStr.ToString(), out DateTime startDate))
+                    {
+                        trialEndDate = startDate.ToLocalTime().AddDays(7);
+                    }
+                }
+                StatusExpiryVal.Text = trialEndDate.ToString("dd MMMM yyyy HH:mm:ss");
+                
+                StatusLabel.Text = "Status: Running on trial license.";
+                StatusLabel.Foreground = Brushes.LightBlue;
+                StatusLabel.Visibility = Visibility.Visible;
+                TrialExpiredWarning.Visibility = Visibility.Collapsed;
+                BtnSignOut.Visibility = Visibility.Visible;
+                BtnStartTrial.Visibility = Visibility.Collapsed;
             }
             else
             {
+                bool isExpired = LicenseManager.IsExpired() || LicenseManager.IsLocalTrialActive();
                 StatusTextVal.Text = isExpired ? "Expired" : "Not Activated";
                 StatusTextVal.Foreground = Brushes.LightPink;
                 StatusEmailVal.Text = "N/A";
                 StatusExpiryVal.Text = "N/A";
 
-                StatusLabel.Text = isExpired ? "Error: License has expired." : "Status: License not activated.";
+                StatusLabel.Text = isExpired ? "Error: License or Trial has expired." : "Status: License not activated.";
                 StatusLabel.Foreground = Brushes.LightPink;
                 StatusLabel.Visibility = Visibility.Visible;
                 
-                if (isExpired)
-                {
-                    TrialExpiredWarning.Visibility = Visibility.Visible;
-                }
+                TrialExpiredWarning.Visibility = isExpired ? Visibility.Visible : Visibility.Collapsed;
+                BtnSignOut.Visibility = Visibility.Collapsed;
+                BtnStartTrial.Visibility = Visibility.Visible;
             }
         }
 
@@ -126,40 +151,23 @@ namespace RuknBoqMapper
             }
         }
 
-        private async void StartTrial_Click(object sender, RoutedEventArgs e)
+        private void StartTrial_Click(object sender, RoutedEventArgs e)
         {
-            string email = EmailTextBox.Text;
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                MessageBox.Show("Please enter your email on the 'Activate License' tab first to start a free trial.", "Free Trial", MessageBoxButton.OK, MessageBoxImage.Information);
-                SelectTab("Activate");
-                return;
-            }
-
             try
             {
-                this.IsEnabled = false;
-                StatusLabel.Text = "Requesting trial license... Please wait.";
-                StatusLabel.Foreground = Brushes.Orange;
-                StatusLabel.Visibility = Visibility.Visible;
-
-                var trial = await Task.Run(() => LicenseManager.StartTrialAsync(email));
-                string? expiresAtStr = trial.Item3;
-
-                CodeTextBox.Text = string.Empty; 
+                LicenseManager.StartLocalTrial();
+                MessageBox.Show(
+                    "Free 7-day trial started successfully!\n\nYou can now use all tool features.",
+                    "Trial Started",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
                 UpdateStatusDetails();
-                this.IsEnabled = true;
-
-                MessageBox.Show($"Your 30-day free trial is now active.\nExpires: {expiresAtStr}", "Free Trial", MessageBoxButton.OK, MessageBoxImage.Information);
                 SelectTab("Status");
             }
             catch (Exception ex)
             {
-                this.IsEnabled = true;
-                StatusLabel.Text = $"Error: {ex.Message}";
-                StatusLabel.Foreground = Brushes.LightPink;
-                StatusLabel.Visibility = Visibility.Visible;
-                MessageBox.Show(ex.Message, "Free Trial", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"Could not start trial: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

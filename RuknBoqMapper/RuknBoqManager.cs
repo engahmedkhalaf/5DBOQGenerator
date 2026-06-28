@@ -106,9 +106,11 @@ namespace RuknBoqMapper
 
             if (categories.IsEmpty) return;
 
-            // Define all required and optional parameters
+            // Define all parameters that need to be created/bound as shared parameters.
+            // Note: PACKAGE_NO, BILL_NO, SYSTEM_CODE, PAGE_NO, and ITEM_NO are already present in the project,
+            // so we do not create/bind them as shared parameters here.
             string[] paramNames = {
-                "PACKAGE_NO", "BILL_NO", "SYSTEM_CODE", "PAGE_NO", "ITEM_NO", "RUKN_5D_BOQ CODE",
+                "QIC_5D_BOQ_CODE",
                 "DISTRICT_CODE", "ASSET_GROUP", "ASSET_TYPE", "LOCATION_CODE", "DESCRIPTION",
                 "ABS_L1", "ABS_L2", "ABS_L3"
             };
@@ -149,9 +151,7 @@ namespace RuknBoqMapper
 
                     foreach (var pName in paramNames)
                     {
-                        var def = group.Definitions.get_Item(pName);
-                        if (def == null) continue;
-
+                        Definition? existingDef = null;
                         bool alreadyBound = false;
                         var iterator = bindingMap.ForwardIterator();
                         while (iterator.MoveNext())
@@ -159,24 +159,34 @@ namespace RuknBoqMapper
                             if (iterator.Key.Name == pName)
                             {
                                 alreadyBound = true;
+                                existingDef = iterator.Key;
                                 break;
                             }
                         }
 
-                        if (!alreadyBound)
+                        var binding = app.Create.NewInstanceBinding(categories);
+                        BuiltInParameterGroup paramGroup = BuiltInParameterGroup.PG_DATA;
+                        if (pName == "QIC_5D_BOQ_CODE")
                         {
-                            var binding = app.Create.NewInstanceBinding(categories);
-                            BuiltInParameterGroup paramGroup = BuiltInParameterGroup.PG_DATA;
-                            if (pName == "RUKN_5D_BOQ CODE")
+                            paramGroup = BuiltInParameterGroup.PG_IDENTITY_DATA;
+                        }
+
+                        if (alreadyBound && existingDef != null)
+                        {
+                            // If it's QIC_5D_BOQ_CODE, we replace/update its binding
+                            if (pName == "QIC_5D_BOQ_CODE")
                             {
-                                paramGroup = BuiltInParameterGroup.PG_IDENTITY_DATA;
+                                bindingMap.ReInsert(existingDef, binding, paramGroup);
                             }
-                            else if (pName == "PACKAGE_NO" || pName == "BILL_NO" || pName == "SYSTEM_CODE" || 
-                                     pName == "PAGE_NO" || pName == "ITEM_NO")
+                        }
+                        else
+                        {
+                            // If not already bound, retrieve from shared parameter file and insert
+                            var sharedDef = group.Definitions.get_Item(pName);
+                            if (sharedDef != null)
                             {
-                                paramGroup = BuiltInParameterGroup.PG_TEXT;
+                                bindingMap.Insert(sharedDef, binding, paramGroup);
                             }
-                            bindingMap.Insert(def, binding, paramGroup);
                         }
                     }
                     t.Commit();
@@ -357,7 +367,7 @@ namespace RuknBoqMapper
                     SetParameterValue(element, "SYSTEM_CODE", audit.SystemCode);
                     SetParameterValue(element, "PAGE_NO", audit.PageNo);
                     SetParameterValue(element, "ITEM_NO", audit.ItemNo);
-                    SetParameterValue(element, "RUKN_5D_BOQ CODE", audit.GeneratedBoqCode);
+                    SetParameterValue(element, "QIC_5D_BOQ_CODE", audit.GeneratedBoqCode);
 
                     // Lookup matching BoqRecord for optional parameters
                     BoqRecord? matchedBoq = null;

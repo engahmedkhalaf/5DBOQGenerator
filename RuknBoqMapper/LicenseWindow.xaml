@@ -169,7 +169,7 @@
                 <StackPanel Grid.Row="1" MaxWidth="380" HorizontalAlignment="Left">
                     <TextBlock Text="Select an option below to start your trial or request assistance:" TextWrapping="Wrap" Foreground="#CBD5E1" FontSize="12" LineHeight="18" Margin="0,0,0,15"/>
                     
-                    <Button Content="Start Free 30-Day Trial" Click="StartTrial_Click" Style="{StaticResource PremiumButton}" Height="34" Margin="0,0,0,15"/>
+                    <Button x:Name="BtnStartTrial" Content="Start Free 7-Day Trial" Click="StartTrial_Click" Style="{StaticResource PremiumButton}" Height="34" Margin="0,0,0,15"/>
                     
                     <Button Content="Request Activation Code (Email)" Click="RequestCode_Click" Style="{StaticResource SecondaryButton}" Height="34" Margin="0,0,0,15"/>
 
@@ -267,7 +267,7 @@
                         <ColumnDefinition Width="120"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Content="Sign Out" Click="SignOutButton_Click" Style="{StaticResource SecondaryButton}" Grid.Column="0" Margin="0,0,10,0"/>
+                    <Button x:Name="BtnSignOut" Content="Sign Out" Click="SignOutButton_Click" Style="{StaticResource SecondaryButton}" Grid.Column="0" Margin="0,0,10,0"/>
                     <Button Content="Close" Click="CloseButton_Click" Style="{StaticResource SecondaryButton}" Grid.Column="1"/>
                 </Grid>
             </Grid>

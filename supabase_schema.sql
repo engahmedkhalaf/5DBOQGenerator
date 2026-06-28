@@ -66,7 +66,7 @@ BEGIN
     END IF;
 
     v_new_code := 'TRIAL-' || upper(substr(md5(random()::text || clock_timestamp()::text), 1, 10));
-    v_expires := now() + interval '30 days';
+    v_expires := now() + interval '7 days';
 
     INSERT INTO public.licenses (email, activation_code, status, expires_at, is_trial, device_id)
     VALUES (v_email, v_new_code, 'active', v_expires, true, v_device);

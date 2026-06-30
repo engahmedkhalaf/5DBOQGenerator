@@ -98,10 +98,38 @@
 
         <!-- Header -->
         <Grid Grid.Row="0" Margin="0,0,0,12">
-            <StackPanel>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
                 <TextBlock Text="RUKN 5D BOQ MANAGER" Foreground="#3B82F6" FontSize="18" FontWeight="Bold"/>
                 <TextBlock Text="Model Metadata Linker" Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,2,0,0"/>
             </StackPanel>
+            <!-- Logo / website link -->
+            <Button Grid.Column="1" Click="LogoButton_Click" ToolTip="Visit ruknbim.com"
+                    VerticalAlignment="Center"
+                    Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="6,4">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="6" BorderBrush="#334155" BorderThickness="1" Padding="8,5">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="RUKN" Foreground="#3B82F6" FontSize="13" FontWeight="Bold" FontFamily="Segoe UI"/>
+                                <TextBlock Text="BIM" Foreground="White" FontSize="13" FontWeight="Bold" FontFamily="Segoe UI"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#1E293B"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#3B82F6"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#0F172A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
         </Grid>
 
         <!-- Scope Selection Card -->

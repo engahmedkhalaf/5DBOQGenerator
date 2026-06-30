@@ -10,31 +10,19 @@ namespace RuknBoqMapper
     public static class LicenseManager
     {
         private const string RegistryPath = @"Software\RuknTools\RuknBoqMapper";
-
-        // Non-secret: stored as-is for display.
         private const string EmailValueName = "Email";
-
-        // Secret: stored as DPAPI-encrypted Base64. Never plaintext.
         private const string CodeEncValueName = "ActivationCodeEnc";
-
-        // Entitlement state (non-secret).
         private const string LastVerifiedValueName = "LastVerified";
         private const string ExpiresAtValueName = "ExpiresAt";
-
-        // Legacy plaintext value left behind by older builds. Read once for
-        // one-shot re-encryption migration, then deleted.
         private const string LegacyCodeValueName = "ActivationCode";
-
-        // CONFIGURATION: Supabase credentials.
-        // =====================================================================
-        private const string SupabaseUrl = "https://dfkcnyzuiquvozvncwph.supabase.co";
-        private const string SupabaseAnonKey = "sb_publishable_zhW-Ox8_ssRAZKkGkBbsog_1juWTr1X";
-        // =====================================================================
-
-        // --------------- State queries ---------------
 
         private const string TrialRegistryPath = @"Software\RuknTools\RuknBoqMapper\Trial";
         private const string TrialStartDateValueName = "TrialStartDate";
+
+        private const string SupabaseUrl = "https://dfkcnyzuiquvozvncwph.supabase.co";
+        private const string SupabaseAnonKey = "sb_publishable_zhW-Ox8_ssRAZKkGkBbsog_1juWTr1X";
+
+        // --------------- State queries ---------------
 
         public static bool IsFullyActivated()
         {
@@ -44,81 +32,24 @@ namespace RuknBoqMapper
                 {
                     if (key == null) return false;
 
-                    bool hasEncrypted = !string.IsNullOrWhiteSpace(key.GetValue(CodeEncValueName)?.ToString());
-                    bool hasLegacy = !string.IsNullOrWhiteSpace(key.GetValue(LegacyCodeValueName)?.ToString());
+                    bool hasCode = !string.IsNullOrWhiteSpace(key.GetValue(CodeEncValueName)?.ToString())
+                                || !string.IsNullOrWhiteSpace(key.GetValue(LegacyCodeValueName)?.ToString());
                     bool hasVerified = !string.IsNullOrWhiteSpace(key.GetValue(LastVerifiedValueName)?.ToString());
-                    if (!(hasEncrypted || hasLegacy) || !hasVerified) return false;
+                    if (!hasCode || !hasVerified) return false;
 
                     string expiresAtStr = key.GetValue(ExpiresAtValueName)?.ToString() ?? string.Empty;
                     if (!string.IsNullOrWhiteSpace(expiresAtStr)
                         && DateTimeOffset.TryParse(expiresAtStr, out DateTimeOffset expiresAt)
                         && DateTimeOffset.UtcNow > expiresAt)
-                    {
                         return false;
-                    }
+
                     return true;
                 }
             }
             catch { return false; }
         }
 
-        public static bool IsActivated()
-        {
-            return IsFullyActivated() || GetTrialRemainingDays() > 0;
-        }
-
-        public static double GetTrialRemainingDays()
-        {
-            try
-            {
-                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(TrialRegistryPath))
-                {
-                    if (key == null) return 0;
-                    string? startStr = key.GetValue(TrialStartDateValueName)?.ToString();
-                    if (string.IsNullOrEmpty(startStr) || !DateTime.TryParse(startStr, out DateTime startDate))
-                    {
-                        return 0;
-                    }
-
-                    double elapsed = (DateTime.UtcNow - startDate.ToUniversalTime()).TotalDays;
-                    if (elapsed < 0) elapsed = 0;
-
-                    double remaining = 7.0 - elapsed;
-                    return remaining > 0 ? remaining : 0;
-                }
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-
-        public static bool IsLocalTrialActive()
-        {
-            try
-            {
-                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(TrialRegistryPath))
-                {
-                    return key != null && !string.IsNullOrEmpty(key.GetValue(TrialStartDateValueName)?.ToString());
-                }
-            }
-            catch { return false; }
-        }
-
-        public static void StartLocalTrial()
-        {
-            try
-            {
-                using (RegistryKey key = Registry.CurrentUser.CreateSubKey(TrialRegistryPath))
-                {
-                    if (key != null)
-                    {
-                        key.SetValue(TrialStartDateValueName, DateTime.UtcNow.ToString("o"));
-                    }
-                }
-            }
-            catch { }
-        }
+        public static bool IsActivated() => IsFullyActivated();
 
         public static bool IsExpired()
         {
@@ -148,29 +79,62 @@ namespace RuknBoqMapper
         public static bool ValidateInput(string email, string code)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code)) return false;
-            bool validEmail = Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-            bool validCode = code.Trim().Length >= 4;
-            return validEmail && validCode;
+            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$") && code.Trim().Length >= 4;
+        }
+
+        // --------------- Trial (local only) ---------------
+
+        public static double GetTrialRemainingDays()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(TrialRegistryPath))
+                {
+                    if (key == null) return 0;
+                    string? startStr = key.GetValue(TrialStartDateValueName)?.ToString();
+                    if (string.IsNullOrEmpty(startStr) || !DateTime.TryParse(startStr, out DateTime startDate))
+                        return 0;
+                    double remaining = 7.0 - (DateTime.UtcNow - startDate.ToUniversalTime()).TotalDays;
+                    return remaining > 0 ? remaining : 0;
+                }
+            }
+            catch { return 0; }
+        }
+
+        public static bool IsLocalTrialActive()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(TrialRegistryPath))
+                    return key != null && !string.IsNullOrEmpty(key.GetValue(TrialStartDateValueName)?.ToString());
+            }
+            catch { return false; }
+        }
+
+        public static void StartLocalTrial()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.CreateSubKey(TrialRegistryPath))
+                    key?.SetValue(TrialStartDateValueName, DateTime.UtcNow.ToString("o"));
+            }
+            catch { }
         }
 
         // --------------- Persistence ---------------
 
-        private static void SaveActivated(string email, string code, string? licenseExpiresAtStr)
+        private static void SaveActivated(string email, string code, string? expiresAtStr)
         {
             using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegistryPath))
             {
                 if (key == null) throw new Exception("Cannot open registry key for write.");
-
                 key.SetValue(EmailValueName, email ?? string.Empty);
                 key.SetValue(CodeEncValueName, DpapiHelper.Protect(code ?? string.Empty));
                 key.SetValue(LastVerifiedValueName, DateTimeOffset.UtcNow.ToString("O"));
-
-                if (!string.IsNullOrWhiteSpace(licenseExpiresAtStr))
-                    key.SetValue(ExpiresAtValueName, licenseExpiresAtStr!);
+                if (!string.IsNullOrWhiteSpace(expiresAtStr))
+                    key.SetValue(ExpiresAtValueName, expiresAtStr!);
                 else
                     try { key.DeleteValue(ExpiresAtValueName, false); } catch { }
-
-                // Once we've written the encrypted blob, wipe any legacy plaintext.
                 try { key.DeleteValue(LegacyCodeValueName, false); } catch { }
             }
         }
@@ -184,30 +148,48 @@ namespace RuknBoqMapper
                     if (key == null) return;
                     foreach (var name in new[] { CodeEncValueName, LegacyCodeValueName, LastVerifiedValueName, ExpiresAtValueName })
                         try { key.DeleteValue(name, false); } catch { }
-                    // Email left in place so the form pre-fills next time.
                 }
-                try
-                {
-                    Registry.CurrentUser.DeleteSubKeyTree(TrialRegistryPath, false);
-                }
-                catch { }
+                try { Registry.CurrentUser.DeleteSubKeyTree(TrialRegistryPath, false); } catch { }
             }
             catch { }
         }
 
-        // --------------- License lookup ---------------
+        // --------------- Connection test ---------------
 
-        // Hits the licenses table directly. Returns (isValid, expiresAtStr).
-        public static async Task<Tuple<bool, string?>> ValidateLicenseWithSupabaseAsync(string email, string code)
+        // Returns true if Supabase is reachable. Fast, no auth side-effects.
+        public static async Task<bool> PingAsync()
+        {
+            string url = $"{SupabaseUrl.TrimEnd('/')}/rest/v1/licenses?limit=0";
+            using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) })
+            {
+                client.DefaultRequestHeaders.Add("apikey", SupabaseAnonKey);
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {SupabaseAnonKey}");
+                try
+                {
+                    var resp = await client.GetAsync(url).ConfigureAwait(false);
+                    return resp.IsSuccessStatusCode;
+                }
+                catch { return false; }
+            }
+        }
+
+        // --------------- Activate (single RPC call) ---------------
+
+        // Calls verify_license RPC which handles lookup + machine claiming in one shot.
+        // Returns (isValid, expireDate as ISO string or null).
+        public static async Task<Tuple<bool, string?>> ActivateAsync(string email, string code)
         {
             if (!ValidateInput(email, code))
                 return Tuple.Create<bool, string?>(false, null);
 
             string cleanEmail = email.Trim().ToLowerInvariant();
             string cleanCode = code.Trim();
-            string encodedEmail = Uri.EscapeDataString(cleanEmail);
-            string encodedCode = Uri.EscapeDataString(cleanCode);
-            string url = $"{SupabaseUrl.TrimEnd('/')}/rest/v1/licenses?email=ilike.{encodedEmail}&activation_code=eq.{encodedCode}&select=*";
+            string machineId = DeviceFingerprint.Get();
+
+            string url = $"{SupabaseUrl.TrimEnd('/')}/rest/v1/rpc/verify_license";
+            string body = "{\"p_email\":\"" + JsonEscape(cleanEmail)
+                        + "\",\"p_code\":\"" + JsonEscape(cleanCode)
+                        + "\",\"p_machine_id\":\"" + JsonEscape(machineId) + "\"}";
 
             using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(20) })
             {
@@ -215,122 +197,36 @@ namespace RuknBoqMapper
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {SupabaseAnonKey}");
 
                 HttpResponseMessage resp;
-                try { resp = await client.GetAsync(url).ConfigureAwait(false); }
+                try { resp = await client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json")).ConfigureAwait(false); }
                 catch (Exception ex) { throw new Exception($"Could not reach Supabase: {ex.Message}"); }
 
+                string text = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (!resp.IsSuccessStatusCode)
-                {
-                    string err = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    throw new Exception($"Supabase returned {(int)resp.StatusCode}: {err}");
-                }
+                    throw new Exception($"Supabase returned {(int)resp.StatusCode}: {text}");
 
-                string text = (await resp.Content.ReadAsStringAsync().ConfigureAwait(false)).Trim();
-                if (!text.StartsWith("[") || text == "[]")
+                if (text.Contains("\"not_found\""))
                     return Tuple.Create<bool, string?>(false, null);
 
-                if (text.Contains("\"status\"")
-                    && !text.Contains("\"status\":\"active\"")
-                    && !text.Contains("\"status\": \"active\""))
-                    return Tuple.Create<bool, string?>(false, null);
+                if (text.Contains("\"machine_mismatch\""))
+                    throw new Exception("This license is already activated on a different device.");
 
+                // Parse expire_date (date type: "YYYY-MM-DD")
                 string? expiresAtStr = null;
-                var m = Regex.Match(text, "\"expires_at\"\\s*:\\s*\"([^\"]+)\"");
+                var m = Regex.Match(text, "\"expire_date\"\\s*:\\s*\"([^\"]+)\"");
                 if (m.Success)
                 {
                     expiresAtStr = m.Groups[1].Value;
                     if (DateTimeOffset.TryParse(expiresAtStr, out DateTimeOffset exp) && DateTimeOffset.UtcNow > exp)
                         return Tuple.Create<bool, string?>(false, null);
                 }
+
+                SaveActivated(cleanEmail, cleanCode, expiresAtStr);
                 return Tuple.Create<bool, string?>(true, expiresAtStr);
-            }
-        }
-
-        // High-level activate: validate against the table, claim the device
-        // (trials get device-locked on first use), then persist on success.
-        public static async Task<Tuple<bool, string?>> ActivateAsync(string email, string code)
-        {
-            var result = await ValidateLicenseWithSupabaseAsync(email, code).ConfigureAwait(false);
-            if (!result.Item1) return result;
-
-            string status = await ClaimDeviceAsync(email, code).ConfigureAwait(false);
-            if (status == "device_mismatch")
-                throw new Exception("This trial license is locked to a different device. Please request a paid license to use it on multiple machines.");
-            if (status != "ok")
-                throw new Exception($"License check failed: {status}.");
-
-            SaveActivated(email.Trim().ToLowerInvariant(), code.Trim(), result.Item2);
-            return result;
-        }
-
-        private static async Task<string> ClaimDeviceAsync(string email, string code)
-        {
-            string url = $"{SupabaseUrl.TrimEnd('/')}/rest/v1/rpc/claim_device";
-            string body = "{\"p_email\":\"" + JsonEscape(email.Trim().ToLowerInvariant())
-                        + "\",\"p_code\":\"" + JsonEscape(code.Trim())
-                        + "\",\"p_device_id\":\"" + JsonEscape(DeviceFingerprint.Get()) + "\"}";
-
-            using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(20) })
-            {
-                client.DefaultRequestHeaders.Add("apikey", SupabaseAnonKey);
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {SupabaseAnonKey}");
-                var resp = await client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json")).ConfigureAwait(false);
-                string text = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
-                if (!resp.IsSuccessStatusCode)
-                    throw new Exception($"Device check failed ({(int)resp.StatusCode}). {text}");
-                // RPC returns a bare quoted string, e.g. "ok" or "device_mismatch".
-                return text.Trim().Trim('"');
-            }
-        }
-
-        // --------------- Trial ---------------
-
-        public static async Task<Tuple<string, string, string?>> StartTrialAsync(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email) || !Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-                throw new Exception("Please enter a valid email address.");
-
-            string cleanEmail = email.Trim().ToLowerInvariant();
-            string url = $"{SupabaseUrl.TrimEnd('/')}/rest/v1/rpc/start_trial";
-            string body = "{\"p_email\":\"" + JsonEscape(cleanEmail)
-                        + "\",\"p_device_id\":\"" + JsonEscape(DeviceFingerprint.Get()) + "\"}";
-
-            using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(20) })
-            {
-                client.DefaultRequestHeaders.Add("apikey", SupabaseAnonKey);
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {SupabaseAnonKey}");
-                var resp = await client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json")).ConfigureAwait(false);
-                string text = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-                if (!resp.IsSuccessStatusCode)
-                {
-                    if (text.Contains("device_mismatch"))
-                        throw new Exception("A trial is already active for this email on a different device. Each trial is locked to one machine.");
-                    if (text.Contains("trial_already_used"))
-                        throw new Exception("A trial has already been used for this email. Please request a paid activation code.");
-                    if (text.Contains("invalid_email"))
-                        throw new Exception("Please enter a valid email address.");
-                    throw new Exception($"Trial request failed ({(int)resp.StatusCode}). {text}");
-                }
-
-                var codeMatch = Regex.Match(text, "\"activation_code\"\\s*:\\s*\"([^\"]+)\"");
-                var expMatch = Regex.Match(text, "\"expires_at\"\\s*:\\s*\"([^\"]+)\"");
-                if (!codeMatch.Success)
-                    throw new Exception("Unexpected server response. Please try again later.");
-
-                string code = codeMatch.Groups[1].Value;
-                string? expiresAtStr = expMatch.Success ? expMatch.Groups[1].Value : null;
-
-                // Persist immediately (encrypted) so the caller doesn't have to.
-                SaveActivated(cleanEmail, code, expiresAtStr);
-
-                return Tuple.Create<string, string, string?>(cleanEmail, code, expiresAtStr);
             }
         }
 
         // --------------- Legacy plaintext migration ---------------
 
-        // Re-encrypts any plaintext ActivationCode left over from older builds.
-        // Silent and idempotent.
         public static Task<bool> MigrateLegacyPlaintextAsync()
         {
             try
@@ -344,7 +240,6 @@ namespace RuknBoqMapper
                     expiresAtStr = key.GetValue(ExpiresAtValueName)?.ToString() ?? string.Empty;
                 }
                 if (string.IsNullOrWhiteSpace(legacyCode)) return Task.FromResult(false);
-
                 SaveActivated(email, legacyCode, string.IsNullOrWhiteSpace(expiresAtStr) ? null : expiresAtStr);
                 return Task.FromResult(true);
             }

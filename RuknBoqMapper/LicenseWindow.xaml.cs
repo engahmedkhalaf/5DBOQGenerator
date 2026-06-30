@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -15,175 +16,47 @@ namespace RuknBoqMapper
             // Populate values
             EmailTextBox.Text = LicenseManager.GetSavedEmail();
             UpdateStatusDetails();
+        }
 
-            // Set the starting tab
-            if (!string.IsNullOrEmpty(startingTab))
-            {
-                SelectTab(startingTab!);
-            }
-            else
-            {
-                if (LicenseManager.IsActivated())
-                {
-                    SelectTab("Status");
-                }
-                else
-                {
-                    SelectTab("Activate");
-                }
-            }
+        // Maintained for backward compatibility with external calls in RuknBoqApp
+        public void SelectTab(string tabName)
+        {
+            // The tabs are merged into a single status screen
         }
 
         private void UpdateStatusDetails()
         {
             bool fullyActivated = LicenseManager.IsFullyActivated();
-            double trialRemaining = LicenseManager.GetTrialRemainingDays();
 
             if (fullyActivated)
             {
                 StatusTextVal.Text = "Active / Licensed";
                 StatusTextVal.Foreground = Brushes.LightGreen;
-                StatusEmailVal.Text = LicenseManager.GetSavedEmail();
-
+                
+                string expiresAtStr = "Lifetime License";
                 using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\RuknTools\RuknBoqMapper"))
                 {
                     object? expiresAtVal = key?.GetValue("ExpiresAt");
-                    StatusExpiryVal.Text = expiresAtVal != null ? expiresAtVal.ToString()! : "Lifetime License";
+                    if (expiresAtVal != null) expiresAtStr = expiresAtVal.ToString()!;
                 }
+
+                DetailsTextVal.Text = $"Email: {LicenseManager.GetSavedEmail()}\nExpiration: {expiresAtStr}";
                 
-                StatusLabel.Text = "Status: Activated successfully.";
-                StatusLabel.Foreground = Brushes.LightGreen;
-                StatusLabel.Visibility = Visibility.Visible;
-                TrialExpiredWarning.Visibility = Visibility.Collapsed;
-                BtnSignOut.Visibility = Visibility.Visible;
-                BtnStartTrial.Visibility = Visibility.Collapsed;
-            }
-            else if (trialRemaining > 0)
-            {
-                StatusTextVal.Text = $"Trial ({trialRemaining:F1} Days Remaining)";
-                StatusTextVal.Foreground = Brushes.LightBlue;
-                StatusEmailVal.Text = "Trial User";
-                
-                DateTime trialEndDate = DateTime.UtcNow.AddDays(trialRemaining);
-                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\RuknTools\RuknBoqMapper\Trial"))
-                {
-                    object? startStr = key?.GetValue("TrialStartDate");
-                    if (startStr != null && DateTime.TryParse(startStr.ToString(), out DateTime startDate))
-                    {
-                        trialEndDate = startDate.ToLocalTime().AddDays(7);
-                    }
-                }
-                StatusExpiryVal.Text = trialEndDate.ToString("dd MMMM yyyy HH:mm:ss");
-                
-                StatusLabel.Text = "Status: Running on trial license.";
-                StatusLabel.Foreground = Brushes.LightBlue;
-                StatusLabel.Visibility = Visibility.Visible;
-                TrialExpiredWarning.Visibility = Visibility.Collapsed;
-                BtnSignOut.Visibility = Visibility.Visible;
-                BtnStartTrial.Visibility = Visibility.Collapsed;
+                ActivationFormPanel.Visibility = Visibility.Collapsed;
+                DeactivationPanel.Visibility = Visibility.Visible;
             }
             else
             {
-                bool isExpired = LicenseManager.IsExpired() || LicenseManager.IsLocalTrialActive();
+                bool isExpired = LicenseManager.IsExpired();
                 StatusTextVal.Text = isExpired ? "Expired" : "Not Activated";
                 StatusTextVal.Foreground = Brushes.LightPink;
-                StatusEmailVal.Text = "N/A";
-                StatusExpiryVal.Text = "N/A";
 
-                StatusLabel.Text = isExpired ? "Error: License or Trial has expired." : "Status: License not activated.";
-                StatusLabel.Foreground = Brushes.LightPink;
-                StatusLabel.Visibility = Visibility.Visible;
-                
-                TrialExpiredWarning.Visibility = isExpired ? Visibility.Visible : Visibility.Collapsed;
-                BtnSignOut.Visibility = Visibility.Collapsed;
-                BtnStartTrial.Visibility = Visibility.Visible;
-            }
-        }
+                DetailsTextVal.Text = isExpired 
+                    ? "Your license has expired." 
+                    : "No active license found.";
 
-        public void SelectTab(string tabName)
-        {
-            var activeStyle = FindResource("ActiveSidebarButton") as Style;
-            var inactiveStyle = FindResource("SidebarButton") as Style;
-
-            // Reset button styles
-            NavGetLicense.Style = inactiveStyle;
-            NavActivateLicense.Style = inactiveStyle;
-            NavLicenseStatus.Style = inactiveStyle;
-            NavInformation.Style = inactiveStyle;
-
-            // Reset panel visibilities
-            GetLicensePanel.Visibility = Visibility.Collapsed;
-            ActivateLicensePanel.Visibility = Visibility.Collapsed;
-            LicenseStatusPanel.Visibility = Visibility.Collapsed;
-            InformationPanel.Visibility = Visibility.Collapsed;
-
-            switch (tabName.ToLowerInvariant())
-            {
-                case "getlicense":
-                case "get license":
-                    NavGetLicense.Style = activeStyle;
-                    GetLicensePanel.Visibility = Visibility.Visible;
-                    break;
-                case "activate":
-                case "activate license":
-                    NavActivateLicense.Style = activeStyle;
-                    ActivateLicensePanel.Visibility = Visibility.Visible;
-                    break;
-                case "status":
-                case "license status":
-                    NavLicenseStatus.Style = activeStyle;
-                    LicenseStatusPanel.Visibility = Visibility.Visible;
-                    break;
-                case "information":
-                case "info":
-                    NavInformation.Style = activeStyle;
-                    InformationPanel.Visibility = Visibility.Visible;
-                    break;
-            }
-        }
-
-        private void Tab_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button clickedButton)
-            {
-                string tabName = clickedButton.Content?.ToString() ?? string.Empty;
-                SelectTab(tabName);
-            }
-        }
-
-        private void StartTrial_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                LicenseManager.StartLocalTrial();
-                MessageBox.Show(
-                    "Free 7-day trial started successfully!\n\nYou can now use all tool features.",
-                    "Trial Started",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
-                UpdateStatusDetails();
-                SelectTab("Status");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Could not start trial: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void BuyNow_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                string email = string.IsNullOrWhiteSpace(EmailTextBox.Text) ? "(Not specified)" : EmailTextBox.Text.Trim();
-                string subject = "RuknBoqMapper Add-in License Purchase";
-                string body = $"Hello Ahmed,\n\nI would like to purchase a full license for RUKNBIM API.\n\nEmail: {email}\nMachine: {Environment.MachineName} ({Environment.UserName})\n";
-                string mailto = $"mailto:engkhalaf7@gmail.com?subject={Uri.EscapeDataString(subject)}&body={Uri.EscapeDataString(body)}";
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(mailto) { UseShellExecute = true });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Failed to open email client: {ex.Message}\n\nYou can manually email engkhalaf7@gmail.com.", "License Manager", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ActivationFormPanel.Visibility = Visibility.Visible;
+                DeactivationPanel.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -220,9 +93,9 @@ namespace RuknBoqMapper
                     return;
                 }
 
+                StatusLabel.Visibility = Visibility.Collapsed;
                 UpdateStatusDetails();
                 MessageBox.Show("Product license activated successfully!", "License Manager", MessageBoxButton.OK, MessageBoxImage.Information);
-                SelectTab("Status");
             }
             catch (Exception ex)
             {
@@ -243,8 +116,26 @@ namespace RuknBoqMapper
                 CodeTextBox.Text = string.Empty;
                 UpdateStatusDetails();
                 MessageBox.Show("You have been signed out successfully.", "License Manager", MessageBoxButton.OK, MessageBoxImage.Information);
-                SelectTab("Activate");
             }
+        }
+
+        private void LogoButton_Click(object sender, RoutedEventArgs e)
+        {
+            try { Process.Start(new ProcessStartInfo("https://www.ruknbim.com/") { UseShellExecute = true }); }
+            catch { }
+        }
+
+        private async void PingButton_Click(object sender, RoutedEventArgs e)
+        {
+            PingButton.IsEnabled = false;
+            PingResultText.Text = "Checking...";
+            PingResultText.Foreground = Brushes.Orange;
+
+            bool online = await LicenseManager.PingAsync();
+
+            PingResultText.Text = online ? "✔ Connected" : "✘ Unreachable";
+            PingResultText.Foreground = online ? Brushes.LightGreen : Brushes.LightPink;
+            PingButton.IsEnabled = true;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -265,13 +156,13 @@ namespace RuknBoqMapper
                               $"Machine ID: {Environment.MachineName} ({Environment.UserName})\n" +
                               $"Email Address: {email}\n";
 
-                string mailtoUrl = $"mailto:engkhalaf7@gmail.com?subject={Uri.EscapeDataString(subject)}&body={Uri.EscapeDataString(body)}";
+                string mailtoUrl = $"mailto:support@ruknbim.com?subject={Uri.EscapeDataString(subject)}&body={Uri.EscapeDataString(body)}";
                 
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(mailtoUrl) { UseShellExecute = true });
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to open email client: {ex.Message}\n\nYou can manually email engkhalaf7@gmail.com with your details.", "License Manager", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"Failed to open email client: {ex.Message}\n\nYou can manually email support@ruknbim.com with your details.", "License Manager", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Windows;
 
 namespace RuknBoqMapper
@@ -12,6 +13,12 @@ namespace RuknBoqMapper
             InitializeComponent();
             _viewModel = viewModel;
             DataContext = _viewModel;
+        }
+
+        private void LogoButton_Click(object sender, RoutedEventArgs e)
+        {
+            try { Process.Start(new ProcessStartInfo("https://www.ruknbim.com/") { UseShellExecute = true }); }
+            catch { }
         }
 
         private void SelectAllCategories_Click(object sender, RoutedEventArgs e)

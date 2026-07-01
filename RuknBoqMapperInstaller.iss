@@ -31,7 +31,7 @@ Name: "{commonappdata}\Autodesk\Revit\Addins\2023\RuknBoqMapper"
 Source: "RuknBoqMapper\RuknBoqMapper.addin"; DestDir: "{commonappdata}\Autodesk\Revit\Addins\2023"; Flags: ignoreversion
 
 ; All application files (DLL, PDB, Resources subfolder)
-Source: "RuknBoqMapper\bin\Debug\net48\*"; DestDir: "{commonappdata}\Autodesk\Revit\Addins\2023\RuknBoqMapper"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "RuknBoqMapper\bin\Release\net48\*"; DestDir: "{commonappdata}\Autodesk\Revit\Addins\2023\RuknBoqMapper"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Code]
 var
@@ -51,7 +51,7 @@ procedure TermsButtonClick(Sender: TObject);
 var
   ErrorCode: Integer;
 begin
-  ShellExec('open', 'https://rukn-bim-website-opka.vercel.app/', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+  ShellExec('open', 'https://www.ruknbim.com/', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 end;
 
 procedure InitializeWizard();
